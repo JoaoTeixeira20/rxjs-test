@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ES6",
+    "moduleResolution": "Node",
+    "noImplicitAny": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "rootDir": "src",
+    "outDir": "build",
+    "baseUrl": "./src/",
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

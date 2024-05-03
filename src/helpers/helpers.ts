@@ -20,4 +20,68 @@ function getObjectValueFromPath(object: Record<string, unknown>, path: string) {
   return path.split(".").reduce((acc, curr) => acc && acc[curr], object);
 }
 
-export { makeRequest, getObjectValueFromPath };
+function traverseObject(
+  obj: any,
+  path?: string
+): {
+  origin: string;
+  destination: string;
+  destinationPath: string;
+  originParh: string;
+}[] {
+  const result: {
+    origin: string;
+    destination: string;
+    destinationPath: string;
+    originParh: string;
+  }[] = [];
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      if (Array.isArray(value)) {
+        value.forEach((item: unknown, index: number) => {
+          if (typeof item === "object") {
+            result.push(
+              ...traverseObject(
+                item,
+                `${path ? `${path}.` : ``}${key}.${index}`
+              )
+            );
+          } else if (typeof item === "string") {
+            if (String(item).startsWith("$")) {
+              const extractedPath = item.replace(/\$|{|}/g, "").split(".");
+              const extractedOriginPath = `${
+                path ? `${path}.` : ``
+              }${key}`.split(".");
+              result.push({
+                origin: extractedPath[0],
+                originParh: extractedPath.slice(1).join("."),
+                destination: extractedOriginPath[0],
+                destinationPath: extractedOriginPath.slice(1).join("."),
+              });
+            }
+          }
+        });
+      } else if (typeof value === "object") {
+        result.push(
+          ...traverseObject(value, `${path ? `${path}.` : ``}${key}`)
+        );
+      } else if (typeof value === "string") {
+        if (value.startsWith("$")) {
+          const extractedPath = value.replace(/\$|{|}/g, "").split(".");
+          const destinationPath = `${path ? `${path}.` : ``}${key}`.split(".");
+          result.push({
+            origin: extractedPath[0],
+            originParh: extractedPath.slice(1).join("."),
+            destination: destinationPath[0],
+            destinationPath: destinationPath.slice(1).join("."),
+          });
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+export { makeRequest, getObjectValueFromPath, traverseObject };

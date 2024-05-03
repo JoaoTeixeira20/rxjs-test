@@ -6,13 +6,12 @@ import { TFormCore } from "@/core/form";
 
 const BuildReactTree = (
   schema: TSchema,
-  formInstance?: TFormCore
 ): ReactElement => {
   const { component, children, name } = schema;
   const { mappers } = useFormContext();
 
   const childElements = children
-    ? children.map((el: TSchema) => BuildReactTree(el, formInstance))
+    ? children.map((el: TSchema) => BuildReactTree(el))
     : null;
 
     const { component: Component, valueChangeEvent } = mappers.find(
@@ -27,12 +26,13 @@ const BuildReactTree = (
 };
 
 const RenderSchema = () => {
-  const { schema, formInstance, printValues } = useFormContext();
-  const reactTree = BuildReactTree(schema, formInstance);
+  const { schema, printValues, printInstance } = useFormContext();
+  const reactTree = BuildReactTree(schema);
 
   return (
     <>
       <button onClick={printValues}>print values</button>
+      <button onClick={printInstance}>print instance</button>
       <form>{reactTree}</form>
     </>
   );

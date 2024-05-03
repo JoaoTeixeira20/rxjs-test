@@ -14,14 +14,16 @@ import {
   startWith,
   Subject,
   map,
+  Subscription,
 } from "rxjs";
-import { TFormCore } from "./form";
 import { getObjectValueFromPath, makeRequest } from "@/helpers/helpers";
+import debounce from "lodash/debounce";
 
 class FormField {
   name: string;
   component: string;
-  parent: string;
+  path: string;
+  children: string[];
   props: Record<string, unknown>;
   validations: Partial<Record<keyof HTMLElementEventMap, TValidations>>;
   visibilityConditions: Partial<
@@ -35,105 +37,116 @@ class FormField {
   visibility: boolean;
   api: Partial<Record<keyof HTMLElementEventMap, TApi>>;
   apiResponseData: { response: unknown };
-  propsSubject: Subject<Record<string, unknown>>;
-  errorSubject: Subject<string[]>;
-  valueSubject: Subject<{ value: unknown; event: keyof HTMLElementEventMap }>;
-  visibilitySubject: Subject<boolean>;
-  resetValueSubject: Subject<{
+  propsSubject$: Subject<Record<string, unknown>>;
+  errorSubject$: Subject<string[]>;
+  valueSubject$: Subject<{ value: unknown; event: keyof HTMLElementEventMap }>;
+  visibilitySubject$: Subject<boolean>;
+  resetValueSubject$: Subject<{
     value: unknown;
     event: keyof HTMLElementEventMap;
   }>;
-  apiSubject: Subject<{ response: unknown }>;
-  fieldState: Observable<{
+  apiSubject$: Subject<{ response: unknown }>;
+  fieldState$: Observable<{
     props: Record<string, unknown>;
-    value: unknown;
     errors: string[];
     visibility: boolean;
     resetValue: unknown;
     apiResponse: unknown;
   }>;
-  formInstance: TFormCore;
+  fieldStateSubscription$: Subscription;
+  templateSubject$: Subject<{ key: string }>;
+  validateVisibility: (event: keyof HTMLElementEventMap, key: string) => void;
+  resetValue: (event: keyof HTMLElementEventMap, key: string) => void;
+  debouncedRequest: (event: keyof HTMLElementEventMap) => Promise<void>;
 
-  constructor(
-    schemaComponent: TSchema,
-    parent: string,
-    formInstance: TFormCore
-  ) {
+  constructor({
+    schemaComponent,
+    path,
+    children,
+    validateVisibility,
+    resetValue,
+    initialValue,
+    templateSubject$,
+  }: {
+    schemaComponent: TSchema;
+    path: string;
+    children: string[];
+    validateVisibility: (event: keyof HTMLElementEventMap, key: string) => void;
+    resetValue: (event: keyof HTMLElementEventMap, key: string) => void;
+    initialValue?: unknown;
+    templateSubject$: Subject<{ key: string }>;
+  }) {
     this.name = schemaComponent.name;
     this.component = schemaComponent.component;
-    this.parent = parent;
+    this.path = path;
+    this.children = children;
     this.props = schemaComponent.props;
     this.validations = schemaComponent.validations;
     this.errorMessages = schemaComponent.errorMessages;
     this.visibilityConditions = schemaComponent.visibilityConditions;
     this.resetValues = schemaComponent.resetValues;
     this.api = schemaComponent.api;
-    this.formInstance = formInstance;
+    this.validateVisibility = validateVisibility;
+    this.resetValue = resetValue;
+    this.value = initialValue || "";
+    this.visibility = true;
+    this.templateSubject$ = templateSubject$;
+    this.debouncedRequest = debounce(this.apiRequest,1000).bind(this);
   }
 
   mountField() {
-    if (!this.valueSubject || this.valueSubject.closed) {
-      this.valueSubject = new Subject();
+    if (!this.valueSubject$ || this.valueSubject$.closed) {
+      this.valueSubject$ = new Subject();
     }
-    if (!this.errorSubject || this.errorSubject.closed) {
-      this.errorSubject = new Subject();
+    if (!this.errorSubject$ || this.errorSubject$.closed) {
+      this.errorSubject$ = new Subject();
     }
-    if (!this.visibilitySubject || this.visibilitySubject.closed) {
-      this.visibilitySubject = new Subject();
+    if (!this.visibilitySubject$ || this.visibilitySubject$.closed) {
+      this.visibilitySubject$ = new Subject();
     }
-    if (!this.resetValueSubject || this.resetValueSubject.closed) {
-      this.resetValueSubject = new Subject();
+    if (!this.resetValueSubject$ || this.resetValueSubject$.closed) {
+      this.resetValueSubject$ = new Subject();
     }
-    if (!this.apiSubject || this.apiSubject.closed) {
-      this.apiSubject = new Subject();
-    }
-
-    if (!this.propsSubject || this.propsSubject.closed) {
-      this.propsSubject = new Subject();
+    if (!this.apiSubject$ || this.apiSubject$.closed) {
+      this.apiSubject$ = new Subject();
     }
 
-    this.fieldState = combineLatest({
-      value: this.valueSubject.pipe(
-        startWith({ value: "", event: "input" }),
-        map(({ value }) => value)
-      ),
-      errors: this.errorSubject.pipe(startWith([])),
-      visibility: this.visibilitySubject.pipe(startWith(true)),
-      resetValue: this.resetValueSubject.pipe(
+    if (!this.propsSubject$ || this.propsSubject$.closed) {
+      this.propsSubject$ = new Subject();
+    }
+
+    this.fieldState$ = combineLatest({
+      errors: this.errorSubject$.pipe(startWith([])),
+      visibility: this.visibilitySubject$.pipe(startWith(true)),
+      resetValue: this.resetValueSubject$.pipe(
         startWith(
           { value: "", event: "input" },
           map(({ value }) => value)
         )
       ),
-      apiResponse: this.apiSubject.pipe(
+      apiResponse: this.apiSubject$.pipe(
         startWith({ response: null }),
         map(({ response }) => response)
       ),
-      props: this.propsSubject.pipe(startWith(this.props)),
+      props: this.propsSubject$.pipe(startWith(this.props)),
     });
 
-    this.valueSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe({
-        next: ({ value, event }) => {
-          this.value = value;
-          this.validations?.[event] && this.validateField(event);
-          this.visibilityConditions?.[event] &&
-            this.formInstance.validateVisibility(event, this.name);
-          this.resetValues?.[event] &&
-            this.formInstance.resetValue(event, this.name);
-          this.api?.[event] && this.apiRequest(event);
-          console.log(`value from ${this.name}: ${value}`);
-        },
-        complete() {
-          console.log("valueSubject completed");
-        },
-      });
+    this.valueSubject$.pipe(distinctUntilChanged()).subscribe({
+      next: ({ value, event }) => {
+        this.value = value;
+        this.validations?.[event] && this.validateField(event);
+        this.visibilityConditions?.[event] &&
+          this.validateVisibility(event, this.name);
+        this.resetValues?.[event] && this.resetValue(event, this.name);
+        this.api?.[event] && this.debouncedRequest(event);
+        // this.templateSubject$.next({ key: this.name });
+      },
+    });
 
-    this.visibilitySubject.subscribe({
+    this.visibilitySubject$.subscribe({
       next: (visibility) => (this.visibility = visibility),
     });
-    this.resetValueSubject.subscribe({
+    this.resetValueSubject$.subscribe({
       next: ({ value, event }) => {
         this.emitValue({ value, event });
       },
@@ -143,6 +156,7 @@ class FormField {
     //     this.emitValue({ value: JSON.stringify(response), event: "abort" });
     //   },
     // });
+    this.templateSubject$.next({ key: this.name });
   }
 
   emitValue({
@@ -152,7 +166,7 @@ class FormField {
     value: unknown;
     event: keyof HTMLElementEventMap;
   }): void {
-    this.valueSubject.next({ value, event });
+    this.valueSubject$.next({ value, event });
   }
 
   validateField(event: keyof HTMLElementEventMap) {
@@ -170,8 +184,8 @@ class FormField {
         if (errors) delete errors[validationKey];
         this.errors = errors;
       }
-      this.errorSubject.next(Object.values(this.errors || []));
-      this.propsSubject.next({
+      this.errorSubject$.next(Object.values(this.errors || []));
+      this.propsSubject$.next({
         ...this.props,
         errorMessage: Object.values(this.errors || []).join(),
       });
@@ -188,20 +202,20 @@ class FormField {
       apiResquest.valuePath
     );
     this.apiResponseData = { response };
-    this.apiSubject.next({ response });
+    this.apiSubject$.next({ response });
   }
 
   destroyField() {
-    this.errorSubject.unsubscribe();
-    this.valueSubject.unsubscribe();
-    this.visibilitySubject.unsubscribe();
-    this.resetValueSubject.unsubscribe();
-    this.apiSubject.unsubscribe();
+    this.errorSubject$.unsubscribe();
+    this.valueSubject$.unsubscribe();
+    this.visibilitySubject$.unsubscribe();
+    this.resetValueSubject$.unsubscribe();
+    this.apiSubject$.unsubscribe();
+    this.fieldStateSubscription$.unsubscribe();
   }
 
   subscribeState(
     callback: (payload: {
-      value: unknown;
       errors: string[];
       visibility: boolean;
       resetValue: unknown;
@@ -209,7 +223,20 @@ class FormField {
       props: Record<string, unknown>;
     }) => void
   ) {
-    this.fieldState.subscribe({
+    this.fieldStateSubscription$ = this.fieldState$
+      .pipe(debounceTime(100))
+      .subscribe({
+        next: callback,
+      });
+  }
+
+  subscribeValue(
+    callback: (payload: {
+      value: unknown;
+      event: keyof HTMLElementEventMap;
+    }) => void
+  ) {
+    this.valueSubject$.subscribe({
       next: callback,
     });
   }

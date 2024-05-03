@@ -1,4 +1,3 @@
-import { TMapper } from "@/mappers/mappers";
 import { useFormContext } from "@/reactAdapter/context/FormContext";
 import {
   useState,
@@ -19,41 +18,43 @@ const FieldWrapper = ({
 }: PropsWithChildren<{
   index: string;
   Component: ElementType;
-  valueChangeEvent: (event: unknown) => unknown
+  valueChangeEvent: (event: unknown) => unknown;
 }>): ReactElement => {
   const { getFieldInstance } = useFormContext();
   const fieldInstance = useMemo(() => getFieldInstance(index), [index]);
-
-  const [{ value, errors, visibility, apiResponse, props }, setState] =
-    useState<{
-      value: unknown;
-      errors: string[];
-      visibility: boolean;
-      apiResponse: unknown;
-      props: Record<string, unknown>;
-    }>({
-      value: fieldInstance.value,
-      errors: [],
-      visibility: fieldInstance.visibility,
-      apiResponse: fieldInstance.apiResponseData?.response,
-      props: fieldInstance.props,
-    });
-
-  console.log("rerendered", index, fieldInstance.value);
+  const [value, setValue] = useState(fieldInstance.value);
+  const [{ errors, visibility, apiResponse, props }, setState] = useState<{
+    errors: string[];
+    visibility: boolean;
+    apiResponse: unknown;
+    props: Record<string, unknown>;
+  }>({
+    errors: [],
+    visibility: fieldInstance.visibility,
+    apiResponse: fieldInstance.apiResponseData?.response,
+    props: fieldInstance.props,
+  });
 
   useEffect(() => {
     fieldInstance.mountField();
 
+    fieldInstance.subscribeValue(({ value }) => {
+      setValue(value);
+    });
+
     fieldInstance.subscribeState(
-      ({ value, errors, visibility, apiResponse, props }) => {
-        setState((prev) => ({
-          ...prev,
-          value,
-          errors,
-          visibility,
-          apiResponse,
-          props,
-        }));
+      ({ errors, visibility, apiResponse, props }) => {
+        setState((prev) => {
+          console.log('updated state onto', index)
+          // console.log({value, errors, visibility, apiResponse, props});
+          return {
+            ...prev,
+            errors,
+            visibility,
+            apiResponse,
+            props,
+          };
+        });
       }
     );
 

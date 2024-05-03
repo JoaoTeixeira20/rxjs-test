@@ -32,7 +32,7 @@ console.log(mergedValidations);
 // document.body.appendChild(htmlBuild);
 document.body.appendChild(submitButton);
 
-const FormInstance = new FormCore(schema);
+// const FormInstance = new FormCore(schema);
 
-console.log("form instance");
-console.log(FormInstance.fields);
+// console.log("form instance");
+// console.log(FormInstance.fields);

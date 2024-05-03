@@ -8,7 +8,7 @@ import { bolttechTheme } from '@bolttech/default-theme'
 const App = () => (
   <>
   <BolttechThemeProvider theme={bolttechTheme}>
-    <Form schema={schema} mappers={mappers} />
+    <Form schema={schema} mappers={mappers} initialValues={{name: 'foo'}}/>
     </BolttechThemeProvider>
   </>
 );

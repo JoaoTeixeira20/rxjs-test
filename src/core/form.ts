@@ -1,35 +1,104 @@
 import { TSchema, TValidations } from "@/interfaces/schema";
 import FormField, { IFormField } from "./field";
 import { validations } from "@/validations/validations";
+import { traverseObject } from "@/helpers/helpers";
+import { Subject } from "rxjs";
+import get from "lodash/get";
+import set from "lodash/set";
 
 class FormCore {
   schema: TSchema;
   fields: Map<string, IFormField>;
-  constructor(schema: TSchema) {
+  initialValues?: Record<string, unknown>;
+  templateSubject$?: Subject<{ key: string }>;
+  subscribedTemplates?: {
+    origin: string;
+    destination: string;
+    destinationPath: string;
+    originParh: string;
+  }[];
+  constructor({
+    schema,
+    initialValues,
+  }: {
+    schema: TSchema;
+    initialValues?: Record<string, unknown>;
+  }) {
     this.schema = schema;
     this.fields = new Map();
+    this.initialValues = initialValues;
     const indexes = FormCore.checkIndexes(schema);
     if (indexes.length > new Set(indexes).size)
       throw new Error("duplicate indexes while generating the schema");
-    this.initializeStructure();
-  }
-
-  initializeStructure() {
+    this.templateSubject$ = new Subject();
+    this.subscribedTemplates = [];
     this.serializeStructure(this.schema);
-  }
-
-  destroyFields(key: string) {
-    this.fields.get(key).destroyField();
-    this.fields.delete(key);
-    this.fields.forEach((el, key) => {
-      if (el.parent === key) {
-        this.destroyFields(key);
-      }
+    this.subscribeTemplates();
+    this.templateSubject$.subscribe(({ key }) => {
+      this.subscribedTemplates.map((el) => {
+        if (el.origin === key) {
+          const destinationValue = get(
+            this.fields.get(el.destination),
+            el.destinationPath.split(".")
+          );
+          const originValue = get(
+            this.fields.get(el.origin),
+            el.originParh.split(".")
+          );
+          if (destinationValue !== originValue) {
+            console.log(`need to update ${el.destination} from ${el.origin}`);
+            const fieldToUpdate = this.fields.get(el.destination)
+            set(
+              fieldToUpdate,
+              el.destinationPath.split("."),
+              originValue
+            );
+            console.log("done");
+            // fieldToUpdate
+            //   .valueSubject$.next({
+            //     value: fieldToUpdate.value,
+            //     event: "abort",
+            //   });
+          }
+        }
+      });
     });
   }
 
-  rebuildFields(key: string) {
-    this.serializeStructure(this.schema, key);
+  subscribeTemplates() {
+    // const subscribedProps: unknown[] = [];
+    this.fields.forEach(
+      (
+        {
+          component,
+          props,
+          name,
+          validations,
+          visibilityConditions,
+          resetValues,
+          errorMessages,
+          api,
+        },
+        key
+      ) => {
+        const template = {
+          component,
+          props,
+          name,
+          validations,
+          visibilityConditions,
+          resetValues,
+          errorMessages,
+          api,
+        };
+        const result = traverseObject(template, key);
+        if (result.length > 0) {
+          // subscribedProps.push(result);
+          this.subscribedTemplates = [...this.subscribedTemplates, ...result];
+        }
+      }
+    );
+    // console.log(subscribedProps);
   }
 
   private static checkIndexes = (
@@ -59,10 +128,12 @@ class FormCore {
 
           if (Array.isArray(structElement.fields)) {
             structElement.fields.map((fieldKey) => {
-              this.fields.get(fieldKey).visibilitySubject.next(error);
+              this.fields.get(fieldKey).visibilitySubject$.next(error);
             });
           } else if (structElement.fields) {
-            this.fields.get(structElement.fields).visibilitySubject.next(error);
+            this.fields
+              .get(structElement.fields)
+              .visibilitySubject$.next(error);
           }
         }
       );
@@ -90,15 +161,13 @@ class FormCore {
                   : structElement.resettedFields;
                 this.fields
                   .get(fieldKey)
-                  .resetValueSubject.next({ value: resettedValue, event });
+                  .resetValueSubject$.next({ value: resettedValue, event });
               });
             } else if (structElement.fields) {
-              this.fields
-                .get(structElement.fields)
-                .resetValueSubject.next({
-                  value: structElement.resettedFields,
-                  event,
-                });
+              this.fields.get(structElement.fields).resetValueSubject$.next({
+                value: structElement.resettedFields,
+                event,
+              });
             }
           }
         }
@@ -106,16 +175,24 @@ class FormCore {
     });
   }
 
-  serializeStructure(struct: TSchema, name?: string, parent?: string): void {
-    if (name === struct.name || !name) {
-      this.fields.set(struct.name, new FormField(struct, parent, this));
-    }
+  serializeStructure(struct: TSchema, path?: string): void {
+    this.fields.set(
+      struct.name,
+      new FormField({
+        schemaComponent: struct,
+        path,
+        children: struct.children ? struct.children.map((el) => el.name) : [],
+        validateVisibility: this.validateVisibility.bind(this),
+        resetValue: this.resetValue.bind(this),
+        initialValue: this.initialValues?.[struct.name],
+        templateSubject$: this.templateSubject$,
+      })
+    );
     if (struct.children) {
       struct.children.forEach((el) => {
         return this.serializeStructure(
           el,
-          name === el.name ? null : name,
-          struct.name
+          parent ? `${parent}.${struct.name}` : struct.name
         );
       });
     }

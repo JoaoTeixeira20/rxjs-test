@@ -5,7 +5,6 @@ import { TSchema } from "@/interfaces/schema";
 import { TMapper } from "@/mappers/mappers";
 import {
   createContext,
-  MutableRefObject,
   PropsWithChildren,
   ReactElement,
   useContext,
@@ -17,12 +16,14 @@ type TFormContext = {
   schema: TSchema;
   mappers: TMapper[];
   printValues: () => void;
+  printInstance: () => void;
   getFieldInstance: (index: string) => FormField;
 };
 
 type TFormContextProvider = {
   schema: TSchema;
   mappers: TMapper[];
+  initialValues?: Record<string, unknown>;
 };
 
 let context: TFormContext;
@@ -33,11 +34,19 @@ const FormContextProvider = ({
   children,
   schema,
   mappers,
+  initialValues,
 }: PropsWithChildren<TFormContextProvider>): ReactElement => {
-  const formInstance = useRef<TFormCore>(new FormCore(schema));
+  const formInstance = useRef<TFormCore>(
+    new FormCore({ schema, initialValues })
+  );
 
   const printValues = () => {
-    console.log(formInstance.current.printValues());
+    formInstance.current.printValues();
+  };
+
+  const printInstance = () => {
+    console.log(formInstance);
+    formInstance.current.subscribeTemplates();
   };
 
   const getFieldInstance = (index: string): FormField =>
@@ -49,6 +58,7 @@ const FormContextProvider = ({
     schema,
     mappers,
     printValues,
+    printInstance,
   };
 
   return (

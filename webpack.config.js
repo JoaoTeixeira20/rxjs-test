@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+// const BundleAnalyzerPlugin =
+//   require("webpack-bundle-analyzer").BundleAnalyzerPlugin
 const path = require("path");
 
 module.exports = {
@@ -39,5 +41,6 @@ module.exports = {
       template: "src/page-entry/index.html",
       filename: "index.html",
     }),
+    // new BundleAnalyzerPlugin()
   ],
 };

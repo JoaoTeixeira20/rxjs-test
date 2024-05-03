@@ -3,9 +3,9 @@ import { FormContextProvider } from "../context/FormContext";
 import RenderSchema from "../generators/formBuilder";
 import { TMapper } from "@/mappers/mappers";
 
-const Form = ({ schema, mappers }: { schema: TSchema, mappers: TMapper[] }) => {
+const Form = (props: { schema: TSchema, mappers: TMapper[], initialValues?: Record<string,unknown> }) => {
   return (
-    <FormContextProvider schema={schema} mappers={mappers}>
+    <FormContextProvider {...props}>
       <RenderSchema></RenderSchema>
     </FormContextProvider>
   );

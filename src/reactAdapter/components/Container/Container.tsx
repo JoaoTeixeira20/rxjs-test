@@ -5,7 +5,7 @@ const Container = ({
   label,
 }: PropsWithChildren<{ label: string }>): ReactElement => {
   return (
-    <div>
+    <div style={{border: "1px solid black", padding: "2px"}}>
       <p>container label: {label}</p>
       {children}
     </div>

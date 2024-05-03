@@ -44,7 +44,7 @@ const schema: TSchema = {
       component: "libinput",
       name: "name",
       props: {
-        label: "name",
+        label: "${datepickertest.props.label}",
         variant: "grey",
       },
       validations: {
@@ -97,7 +97,7 @@ const schema: TSchema = {
       component: "div",
       name: "anothercontainer",
       props: {
-        label: "anothercontainer",
+        label: "${name.props.label}",
       },
       children: [
         {
@@ -149,7 +149,7 @@ const schema: TSchema = {
               component: "libinput",
               name: "bal",
               props: {
-                label: "bal",
+                label: "${phone.props.label}",
               },
             },
           ],
@@ -160,7 +160,7 @@ const schema: TSchema = {
       component: "libinput",
       name: "surname",
       props: {
-        label: "surname",
+        label: "${name.value}",
       },
     },
   ],

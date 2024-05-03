@@ -1,10 +1,14 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const path = require("path");
 
 module.exports = {
   devtool: "inline-source-map",
   mode: "development",
-  entry: "./src/index.ts",
+  entry: {
+    // app: ["./src/reactAdapter/index.tsx","./src/index.ts"],
+    app: ["./src/reactAdapter/reactIndex.tsx"]
+  },
   output: {
     path: path.resolve(__dirname, "build"),
     filename: "bundle.js",
@@ -12,13 +16,15 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.(ts|tsx)$/,
         use: "ts-loader",
       },
+      
     ],
   },
   resolve: {
-    extensions: [".ts", ".js", ".html"],
+    extensions: [".ts", ".js", ".tsx", ".html"],
+    plugins: [new TsconfigPathsPlugin()]
   },
   devServer: {
     static: {

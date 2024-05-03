@@ -1,8 +1,12 @@
+import { Subject } from "rxjs";
 import { TSchema } from "./schema";
 
 type TFormStructure = Map<
   string,
-  Omit<TSchema, "name" | "children"> & { parent?: string; value?: unknown }
+  Omit<TSchema | "children"> & { 
+    parent?: string;
+    // subject?: Subject<unknown>
+  }
 >;
 
 export { TFormStructure };

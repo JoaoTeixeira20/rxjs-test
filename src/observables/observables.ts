@@ -10,7 +10,7 @@ const validationEvents$: Observable<{
 const mergeObservables = (structure: TFormStructure) => {
   merge(...observablesList$).subscribe(({ value, key }) => {
     const currentValue = structure.get(key);
-    currentValue.value = value;
+    // currentValue.value = value;
     structure.set(key, currentValue);
     console.log(`${key} changed to ${value}`);
   });

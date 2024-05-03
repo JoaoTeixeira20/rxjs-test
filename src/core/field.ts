@@ -117,12 +117,12 @@ class FormField {
       .subscribe({
         next: ({ value, event }) => {
           this.value = value;
-          this.validations[event] && this.validateField(event);
-          this.visibilityConditions[event] &&
+          this.validations?.[event] && this.validateField(event);
+          this.visibilityConditions?.[event] &&
             this.formInstance.validateVisibility(event, this.name);
-          this.resetValues[event] &&
+          this.resetValues?.[event] &&
             this.formInstance.resetValue(event, this.name);
-          this.api && this.apiRequest(event);
+          this.api?.[event] && this.apiRequest(event);
           console.log(`value from ${this.name}: ${value}`);
         },
         complete() {

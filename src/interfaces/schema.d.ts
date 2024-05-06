@@ -1,4 +1,4 @@
-type TComponents = "input" | "div" | 'libinput' | 'dropdown' | 'datepicker';
+type TComponents = "input" | "div" | "libinput" | "dropdown" | "datepicker";
 
 type TProps = {
   label: string;
@@ -9,6 +9,8 @@ type TValidations = {
   min?: number;
   required?: boolean;
 };
+
+type TFormatters = "dotEvery3chars" | "capitalize";
 
 type TVisibility = {
   validations: TValidations;
@@ -34,7 +36,8 @@ type TSchema = {
   resetValues?: Partial<Record<keyof HTMLElementEventMap, TResetValues[]>>;
   errorMessages?: Partial<Record<keyof TValidations, string>>;
   api?: Partial<Record<keyof HTMLElementEventMap, TApi>>;
+  formatters?: TFormatters[];
   children?: TSchema[];
 };
 
-export { TSchema, TValidations, TVisibility, TResetValues, TApi };
+export { TSchema, TValidations, TVisibility, TResetValues, TApi, TFormatters };

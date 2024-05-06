@@ -1,5 +1,6 @@
 import {
   TApi,
+  TFormatters,
   TResetValues,
   TSchema,
   TValidations,
@@ -19,6 +20,7 @@ import {
 import { makeRequest } from "@/helpers/helpers";
 import debounce from "lodash/debounce";
 import get from "lodash/get";
+import { formatters } from "./formatters/formatters";
 
 class FormField {
   name: string;
@@ -33,6 +35,7 @@ class FormField {
   resetValues: Partial<Record<keyof HTMLElementEventMap, TResetValues[]>>;
   errorMessages: Partial<Record<keyof TValidations, string>>;
   api: Partial<Record<keyof HTMLElementEventMap, TApi>>;
+  formatters: TFormatters[];
   // variable properties
   _props: Record<string, unknown>;
   _value: unknown;
@@ -91,6 +94,7 @@ class FormField {
     this.visibilityConditions = schemaComponent.visibilityConditions;
     this.resetValues = schemaComponent.resetValues;
     this.api = schemaComponent.api;
+    this.formatters = schemaComponent.formatters;
     this.validateVisibility = validateVisibility;
     this.resetValue = resetValue;
     this._value = initialValue || "";
@@ -122,7 +126,13 @@ class FormField {
 
   set value(value: unknown) {
     if (typeof value === "undefined") return;
-    this._value = value;
+    if (this.formatters) {
+      this._value = this.formatters.reduce((acc, curr) => {
+        return formatters[curr](acc);
+      }, value);
+    } else {
+      this._value = value;
+    }
     this.valueSubject$.next(this.value);
   }
 

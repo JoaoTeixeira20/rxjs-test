@@ -4,7 +4,7 @@ const schema: TSchema = {
   component: "div",
   name: "container",
   props: {
-    label: "container",
+    label: "${bal.value}",
   },
   children: [
     {
@@ -92,6 +92,7 @@ const schema: TSchema = {
         min: "min value reached",
         required: "field required",
       },
+      formatters: ["capitalize",'dotEvery3chars'],
     },
     {
       component: "div",

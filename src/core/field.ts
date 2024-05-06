@@ -5,7 +5,7 @@ import {
   TValidations,
   TVisibility,
 } from "@/interfaces/schema";
-import { validations } from "@/validations/validations";
+import { validations } from "@/core/validations/validations";
 import {
   combineLatest,
   debounceTime,
@@ -16,8 +16,9 @@ import {
   map,
   Subscription,
 } from "rxjs";
-import { getObjectValueFromPath, makeRequest } from "@/helpers/helpers";
+import { makeRequest } from "@/helpers/helpers";
 import debounce from "lodash/debounce";
+import get from "lodash/get";
 
 class FormField {
   name: string;
@@ -242,10 +243,7 @@ class FormField {
     if (!apiResquest) return;
     const responseData = await makeRequest(apiResquest.method, apiResquest.url);
     const apiResponseData = JSON.parse(String(responseData));
-    const response = getObjectValueFromPath(
-      apiResponseData,
-      apiResquest.valuePath
-    );
+    const response = get(apiResponseData, apiResquest.valuePath);
     this.apiResponseData = { response };
     // this._apiResponseData = { response };
     // this.apiSubject$.next({ response });
@@ -276,9 +274,7 @@ class FormField {
       });
   }
 
-  subscribeValue(
-    callback: (value: unknown) => void
-  ) {
+  subscribeValue(callback: (value: unknown) => void) {
     this.valueSubject$.subscribe({
       next: callback,
     });

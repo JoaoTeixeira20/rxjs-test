@@ -16,10 +16,6 @@ function makeRequest(method: string, url: string) {
   });
 }
 
-function getObjectValueFromPath(object: Record<string, unknown>, path: string) {
-  return path.split(".").reduce((acc, curr) => acc && acc[curr], object);
-}
-
 function traverseObject(
   obj: any,
   path?: string
@@ -84,4 +80,4 @@ function traverseObject(
   return result;
 }
 
-export { makeRequest, getObjectValueFromPath, traverseObject };
+export { makeRequest, traverseObject };

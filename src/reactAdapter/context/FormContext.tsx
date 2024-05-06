@@ -2,7 +2,7 @@ import FormField from "@/core/field";
 import FormCore, { TFormCore } from "@/core/form";
 import { IFormCore } from "@/interfaces/formCore";
 import { TSchema } from "@/interfaces/schema";
-import { TMapper } from "@/mappers/mappers";
+import { TMapper } from "@/reactAdapter/mappers/mappers";
 import {
   createContext,
   PropsWithChildren,

@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client";
 import { schema } from "@/constants/schema";
 import Form from "./form/Form";
-import { mappers } from "@/mappers/mappers";
+import { mappers } from "@/reactAdapter/mappers/mappers";
 import { BolttechThemeProvider } from "@bolttech/frontend-foundations";
 import { bolttechTheme } from '@bolttech/default-theme'
 

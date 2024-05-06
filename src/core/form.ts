@@ -1,6 +1,6 @@
 import { TSchema, TValidations } from "@/interfaces/schema";
 import FormField, { IFormField } from "./field";
-import { validations } from "@/validations/validations";
+import { validations } from "@/core/validations/validations";
 import { traverseObject } from "@/helpers/helpers";
 import { Subject } from "rxjs";
 import get from "lodash/get";

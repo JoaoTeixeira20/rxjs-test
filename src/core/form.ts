@@ -47,12 +47,9 @@ class FormCore {
           );
           if (destinationValue !== originValue) {
             console.log(`need to update ${el.destination} from ${el.origin}`);
-            const fieldToUpdate = this.fields.get(el.destination)
-            set(
-              fieldToUpdate,
-              el.destinationPath.split("."),
-              originValue
-            );
+            const fieldToUpdate = this.fields.get(el.destination);
+            set(fieldToUpdate, el.destinationPath.split("."), originValue);
+
             console.log("done");
             // fieldToUpdate
             //   .valueSubject$.next({
@@ -128,12 +125,14 @@ class FormCore {
 
           if (Array.isArray(structElement.fields)) {
             structElement.fields.map((fieldKey) => {
-              this.fields.get(fieldKey).visibilitySubject$.next(error);
+              // this.fields.get(fieldKey).visibilitySubject$.next(error);
+              this.fields.get(fieldKey).visibility = error;
             });
           } else if (structElement.fields) {
-            this.fields
-              .get(structElement.fields)
-              .visibilitySubject$.next(error);
+            this.fields.get(structElement.fields).visibility = error;
+            // this.fields
+            //   .get(structElement.fields)
+            //   .visibilitySubject$.next(error);
           }
         }
       );
@@ -161,13 +160,19 @@ class FormCore {
                   : structElement.resettedFields;
                 this.fields
                   .get(fieldKey)
-                  .resetValueSubject$.next({ value: resettedValue, event });
+                  .emitValue({ value: resettedValue, event });
+                // this.fields
+                //   .get(fieldKey)
+                //   .resetValueSubject$.next({ value: resettedValue, event });
               });
             } else if (structElement.fields) {
-              this.fields.get(structElement.fields).resetValueSubject$.next({
-                value: structElement.resettedFields,
-                event,
-              });
+              this.fields
+                .get(structElement.fields)
+                .emitValue({ value: structElement.resettedFields, event });
+              // this.fields.get(structElement.fields).resetValueSubject$.next({
+              //   value: structElement.resettedFields,
+              //   event,
+              // });
             }
           }
         }

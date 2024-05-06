@@ -38,14 +38,14 @@ const FieldWrapper = ({
   useEffect(() => {
     fieldInstance.mountField();
 
-    fieldInstance.subscribeValue(({ value }) => {
+    fieldInstance.subscribeValue((value) => {
       setValue(value);
     });
 
     fieldInstance.subscribeState(
       ({ errors, visibility, apiResponse, props }) => {
         setState((prev) => {
-          console.log('updated state onto', index)
+          console.log("updated state onto", index);
           // console.log({value, errors, visibility, apiResponse, props});
           return {
             ...prev,
@@ -73,6 +73,12 @@ const FieldWrapper = ({
     value = (event as SyntheticEvent<HTMLInputElement>).currentTarget.value;
     fieldInstance.emitValue({ value, event: "input" });
   }, []);
+
+  useEffect(() => {
+    console.log(
+      `AAAAAAAAAAAAAAAAAAAAAAAA: value: ${value} key ${fieldInstance.name}`
+    );
+  }, [value]);
 
   return (
     visibility && (

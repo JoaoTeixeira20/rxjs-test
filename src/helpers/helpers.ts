@@ -21,15 +21,19 @@ function traverseObject(
   path?: string
 ): {
   origin: string;
+  originProperty: string;
+  originPath: string[];
   destination: string;
-  destinationPath: string;
-  originParh: string;
+  destinationProperty: string;
+  destinationPath: string[];
 }[] {
   const result: {
     origin: string;
+    originProperty: string;
+    originPath: string[];
     destination: string;
-    destinationPath: string;
-    originParh: string;
+    destinationProperty: string;
+    destinationPath: string[];
   }[] = [];
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -51,9 +55,11 @@ function traverseObject(
               }${key}`.split(".");
               result.push({
                 origin: extractedPath[0],
-                originParh: extractedPath.slice(1).join("."),
+                originProperty: extractedPath[1],
+                originPath: extractedPath.slice(2),
                 destination: extractedOriginPath[0],
-                destinationPath: extractedOriginPath.slice(1).join("."),
+                destinationProperty: extractedOriginPath[1],
+                destinationPath: extractedOriginPath.slice(2),
               });
             }
           }
@@ -68,9 +74,11 @@ function traverseObject(
           const destinationPath = `${path ? `${path}.` : ``}${key}`.split(".");
           result.push({
             origin: extractedPath[0],
-            originParh: extractedPath.slice(1).join("."),
+            originProperty: extractedPath[1],
+            originPath: extractedPath.slice(2),
             destination: destinationPath[0],
-            destinationPath: destinationPath.slice(1).join("."),
+            destinationProperty: destinationPath[1],
+            destinationPath: destinationPath.slice(2),
           });
         }
       }

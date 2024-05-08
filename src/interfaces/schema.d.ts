@@ -10,7 +10,7 @@ type TValidations = {
   required?: boolean;
 };
 
-type TFormatters = "dotEvery3chars" | "capitalize";
+type TFormatters = "dotEvery3chars" | "capitalize" | "onlyNumbers";
 
 type TVisibility = {
   validations: TValidations;

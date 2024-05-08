@@ -13,9 +13,11 @@ class FormCore {
   templateSubject$?: Subject<{ key: string }>;
   subscribedTemplates?: {
     origin: string;
+    originProperty: string;
+    originPath: string[];
     destination: string;
-    destinationPath: string;
-    originParh: string;
+    destinationProperty: string;
+    destinationPath: string[];
   }[];
   constructor({
     schema,
@@ -37,25 +39,46 @@ class FormCore {
     this.templateSubject$.subscribe(({ key }) => {
       this.subscribedTemplates.map((el) => {
         if (el.origin === key) {
-          const destinationValue = get(
-            this.fields.get(el.destination),
-            el.destinationPath.split(".")
-          );
-          const originValue = get(
-            this.fields.get(el.origin),
-            el.originParh.split(".")
-          );
+          const destinationValue =
+            el.destinationPath.length > 0
+              ? get(
+                  this.fields.get(el.destination)[
+                    el.destinationProperty as keyof IFormField
+                  ],
+                  el.destinationPath
+                )
+              : this.fields.get(el.destination)[
+                  el.destinationProperty as keyof IFormField
+                ];
+          const originValue =
+            el.originPath.length > 0
+              ? get(
+                  this.fields.get(el.origin)[
+                    el.originProperty as keyof IFormField
+                  ],
+                  el.originPath
+                )
+              : this.fields.get(el.origin)[
+                  el.originProperty as keyof IFormField
+                ];
           if (destinationValue !== originValue) {
             console.log(`need to update ${el.destination} from ${el.origin}`);
-            const fieldToUpdate = this.fields.get(el.destination);
-            set(fieldToUpdate, el.destinationPath.split("."), originValue);
-
-            console.log("done");
-            // fieldToUpdate
-            //   .valueSubject$.next({
-            //     value: fieldToUpdate.value,
-            //     event: "abort",
-            //   });
+            if (el.destinationPath.length > 0) {
+              const propState = {
+                ...(this.fields.get(el.destination)[
+                  el.destinationProperty as keyof IFormField
+                ] as object),
+              };
+              set(propState, el.destinationPath, originValue);
+              this.fields.get(el.destination)[
+                el.destinationProperty as keyof IFormField
+              ] = propState as never;
+              return;
+            }
+            this.fields.get(el.destination)[
+              el.destinationProperty as keyof IFormField
+            ] = originValue as never;
+            return;
           }
         }
       });
@@ -125,14 +148,10 @@ class FormCore {
 
           if (Array.isArray(structElement.fields)) {
             structElement.fields.map((fieldKey) => {
-              // this.fields.get(fieldKey).visibilitySubject$.next(error);
               this.fields.get(fieldKey).visibility = error;
             });
           } else if (structElement.fields) {
             this.fields.get(structElement.fields).visibility = error;
-            // this.fields
-            //   .get(structElement.fields)
-            //   .visibilitySubject$.next(error);
           }
         }
       );
@@ -161,18 +180,11 @@ class FormCore {
                 this.fields
                   .get(fieldKey)
                   .emitValue({ value: resettedValue, event });
-                // this.fields
-                //   .get(fieldKey)
-                //   .resetValueSubject$.next({ value: resettedValue, event });
               });
             } else if (structElement.fields) {
               this.fields
                 .get(structElement.fields)
                 .emitValue({ value: structElement.resettedFields, event });
-              // this.fields.get(structElement.fields).resetValueSubject$.next({
-              //   value: structElement.resettedFields,
-              //   event,
-              // });
             }
           }
         }

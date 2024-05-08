@@ -83,6 +83,7 @@ const FieldWrapper = ({
   return (
     visibility && (
       <>
+        <b style={{ padding: "0px", margin: "0px" }}>{index}</b>
         <Component {...props} onChange={handleChange} value={value}>
           {children && children}
         </Component>

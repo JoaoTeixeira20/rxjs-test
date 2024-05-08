@@ -10,7 +10,6 @@ import { validations } from "@/core/validations/validations";
 import {
   combineLatest,
   debounceTime,
-  distinctUntilChanged,
   Observable,
   startWith,
   Subject,
@@ -21,6 +20,7 @@ import { makeRequest } from "@/helpers/helpers";
 import debounce from "lodash/debounce";
 import get from "lodash/get";
 import { formatters } from "./formatters/formatters";
+import isEqual from "lodash/isEqual";
 
 class FormField {
   name: string;
@@ -48,16 +48,11 @@ class FormField {
   errorSubject$: Subject<string[]>;
   valueSubject$: Subject<unknown>;
   visibilitySubject$: Subject<boolean>;
-  resetValueSubject$: Subject<{
-    value: unknown;
-    event: keyof HTMLElementEventMap;
-  }>;
   apiSubject$: Subject<{ response: unknown }>;
   fieldState$: Observable<{
     props: Record<string, unknown>;
     errors: string[];
     visibility: boolean;
-    resetValue: unknown;
     apiResponse: unknown;
   }>;
   fieldStateSubscription$: Subscription;
@@ -88,7 +83,6 @@ class FormField {
     this.component = schemaComponent.component;
     this.path = path;
     this.children = children;
-    this._props = schemaComponent.props;
     this.validations = schemaComponent.validations;
     this.errorMessages = schemaComponent.errorMessages;
     this.visibilityConditions = schemaComponent.visibilityConditions;
@@ -97,14 +91,14 @@ class FormField {
     this.formatters = schemaComponent.formatters;
     this.validateVisibility = validateVisibility;
     this.resetValue = resetValue;
-    this._value = initialValue || "";
-    this._visibility = true;
     this.templateSubject$ = templateSubject$;
     this.debouncedRequest = debounce(this.apiRequest, 1000).bind(this);
+    this._props = schemaComponent.props;
+    this._value = this.formatValue(initialValue || "");
+    this._visibility = true;
     this.valueSubject$ = new Subject();
     this.errorSubject$ = new Subject();
     this.visibilitySubject$ = new Subject();
-    this.resetValueSubject$ = new Subject();
     this.apiSubject$ = new Subject();
     this.propsSubject$ = new Subject();
     this.fieldState$ = new Subject();
@@ -115,9 +109,10 @@ class FormField {
   }
 
   set props(props: Record<string, unknown>) {
-    if (typeof props === "undefined") return;
+    if (typeof props === "undefined" || isEqual(props, this.props)) return;
     this._props = props;
     this.propsSubject$.next(this.props);
+    this.templateSubject$.next({ key: this.name });
   }
 
   get value() {
@@ -125,15 +120,10 @@ class FormField {
   }
 
   set value(value: unknown) {
-    if (typeof value === "undefined") return;
-    if (this.formatters) {
-      this._value = this.formatters.reduce((acc, curr) => {
-        return formatters[curr](acc);
-      }, value);
-    } else {
-      this._value = value;
-    }
+    if (typeof value === "undefined" || isEqual(value, this.value)) return;
+    this._value = this.formatValue(value);
     this.valueSubject$.next(this.value);
+    this.templateSubject$.next({ key: this.name });
   }
 
   get visibility() {
@@ -141,9 +131,10 @@ class FormField {
   }
 
   set visibility(visible: boolean) {
-    if (typeof visible === "undefined") return;
+    if (typeof visible === "undefined" || visible === this.visibility) return;
     this._visibility = visible;
     this.visibilitySubject$.next(this.visibility);
+    this.templateSubject$.next({ key: this.name });
   }
 
   get errors() {
@@ -151,9 +142,10 @@ class FormField {
   }
 
   set errors(errors: Partial<Record<keyof TValidations, string>>) {
-    if (typeof errors === "undefined") return;
+    if (typeof errors === "undefined" || isEqual(errors, this.errors)) return;
     this._errors = errors;
     this.errorSubject$.next(Object.values(this.errors));
+    this.templateSubject$.next({ key: this.name });
   }
 
   get apiResponseData() {
@@ -161,9 +153,14 @@ class FormField {
   }
 
   set apiResponseData(response) {
-    if (typeof response === "undefined") return;
+    if (
+      typeof response === "undefined" ||
+      isEqual(response, this.apiResponseData)
+    )
+      return;
     this._apiResponseData = response;
     this.apiSubject$.next(this.apiResponseData);
+    this.templateSubject$.next({ key: this.name });
   }
 
   mountField() {
@@ -176,9 +173,6 @@ class FormField {
     if (!this.visibilitySubject$ || this.visibilitySubject$.closed) {
       this.visibilitySubject$ = new Subject();
     }
-    if (!this.resetValueSubject$ || this.resetValueSubject$.closed) {
-      this.resetValueSubject$ = new Subject();
-    }
     if (!this.apiSubject$ || this.apiSubject$.closed) {
       this.apiSubject$ = new Subject();
     }
@@ -190,12 +184,6 @@ class FormField {
     this.fieldState$ = combineLatest({
       errors: this.errorSubject$.pipe(startWith([])),
       visibility: this.visibilitySubject$.pipe(startWith(true)),
-      resetValue: this.resetValueSubject$.pipe(
-        startWith(
-          { value: "", event: "input" },
-          map(({ value }) => value)
-        )
-      ),
       apiResponse: this.apiSubject$.pipe(
         startWith({ response: null }),
         map(({ response }) => response)
@@ -218,14 +206,13 @@ class FormField {
       this.validateVisibility(event, this.name);
     this.resetValues?.[event] && this.resetValue(event, this.name);
     this.api?.[event] && this.debouncedRequest(event);
-    this.templateSubject$.next({ key: this.name });
   }
 
   validateField(event: keyof HTMLElementEventMap) {
     const structValidations = this.validations?.[event];
     if (!structValidations) return;
     Object.keys(structValidations).map((validationKey: keyof TValidations) => {
-      const error = validations[validationKey](this._value, structValidations);
+      const error = validations[validationKey](this.value, structValidations);
       if (error) {
         this.errors = {
           ...this.errors,
@@ -236,16 +223,24 @@ class FormField {
         if (errors) delete errors[validationKey];
         this.errors = errors;
       }
-      // this.errorSubject$.next(Object.values(this._errors || []));
       this.props = {
         ...this.props,
         errorMessages: Object.values(this.errors || []).join(),
       };
-      // this.propsSubject$.next({
-      //   ...this._props,
-      //   errorMessage: Object.values(this._errors || []).join(),
-      // });
+      this.propsSubject$.next({
+        ...this._props,
+        errorMessage: Object.values(this._errors || []).join(),
+      });
     });
+  }
+
+  formatValue(value: unknown): unknown {
+    if (this.formatters) {
+      return this.formatters.reduce((acc, curr) => {
+        return formatters[curr](acc);
+      }, value);
+    }
+    return value;
   }
 
   async apiRequest(event: keyof HTMLElementEventMap) {
@@ -263,7 +258,6 @@ class FormField {
     this.errorSubject$.unsubscribe();
     this.valueSubject$.unsubscribe();
     this.visibilitySubject$.unsubscribe();
-    this.resetValueSubject$.unsubscribe();
     this.apiSubject$.unsubscribe();
     this.fieldStateSubscription$.unsubscribe();
   }
@@ -272,7 +266,6 @@ class FormField {
     callback: (payload: {
       errors: string[];
       visibility: boolean;
-      resetValue: unknown;
       apiResponse: unknown;
       props: Record<string, unknown>;
     }) => void

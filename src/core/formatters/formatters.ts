@@ -8,6 +8,7 @@ const formatters: Record<TFormatters, (value: unknown) => unknown> = {
       .replace(/(.{3})/g, "$1.");
     return result.endsWith(".") ? result.slice(0, -1) : result;
   },
+  onlyNumbers: (value) => String(value).replace(/[^\d.]/g, ''),
 };
 
 export { formatters };

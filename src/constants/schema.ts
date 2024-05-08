@@ -92,7 +92,7 @@ const schema: TSchema = {
         min: "min value reached",
         required: "field required",
       },
-      formatters: ["capitalize",'dotEvery3chars'],
+      formatters: ["capitalize", "dotEvery3chars"],
     },
     {
       component: "div",
@@ -150,7 +150,7 @@ const schema: TSchema = {
               component: "libinput",
               name: "bal",
               props: {
-                label: "${baz.value}",
+                label: "${surname.props.label}",
               },
             },
           ],

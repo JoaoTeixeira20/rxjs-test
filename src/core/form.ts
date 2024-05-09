@@ -34,8 +34,7 @@ class FormCore {
     this.subscribedTemplates = [];
     this.serializeStructure(this.schema);
     this.subscribeTemplates();
-    this.templateSubject$
-      .subscribe(this.refreshTemplates.bind(this));
+    this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
   }
 
   subscribeTemplates() {

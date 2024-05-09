@@ -143,7 +143,7 @@ const schema: TSchema = {
               component: "libinput",
               name: "baz",
               props: {
-                label: "baz",
+                label: "${baz.value}",
               },
             },
             {

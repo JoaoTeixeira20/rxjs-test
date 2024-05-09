@@ -97,6 +97,7 @@ class FormField {
     this._props = schemaComponent.props;
     this._value = this.formatValue(initialValue || "");
     this._visibility = true;
+    this._apiResponseData = { response: "" };
     this.valueSubject$ = new Subject();
     this.errorSubject$ = new Subject();
     this.visibilitySubject$ = new Subject();
@@ -201,12 +202,15 @@ class FormField {
       errors: this.errorSubject$.pipe(startWith([])),
       visibility: this.visibilitySubject$.pipe(startWith(true)),
       apiResponse: this.apiSubject$.pipe(
-        startWith({ response: "" }),
+        startWith(this._apiResponseData),
         map(({ response }) => response)
       ),
       props: this.propsSubject$.pipe(startWith(this._props)),
     });
-    this.templateSubject$.next({ key: this.name });
+    // black magic.. o_0
+    setTimeout(() => {
+      this.templateSubject$.next({ key: this.name });
+    }, 0);
   }
 
   emitValue({

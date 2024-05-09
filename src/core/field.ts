@@ -198,6 +198,11 @@ class FormField {
       this.propsSubject$ = new Subject();
     }
 
+    // templateSubject$ needs to be emmited before the state declaration
+    // due to startWith operator on fieldState$ Subjects resets the value
+    // emmitted
+    this.templateSubject$.next({ key: this.name });
+
     this.fieldState$ = combineLatest({
       errors: this.errorSubject$.pipe(startWith([])),
       visibility: this.visibilitySubject$.pipe(startWith(true)),
@@ -207,10 +212,6 @@ class FormField {
       ),
       props: this.propsSubject$.pipe(startWith(this._props)),
     });
-    // black magic.. o_0
-    setTimeout(() => {
-      this.templateSubject$.next({ key: this.name });
-    }, 0);
   }
 
   emitValue({

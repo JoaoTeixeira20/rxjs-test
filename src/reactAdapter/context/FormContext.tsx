@@ -1,6 +1,5 @@
 import FormField from "@/core/field";
 import FormCore, { TFormCore } from "@/core/form";
-import { IFormCore } from "@/interfaces/formCore";
 import { TSchema } from "@/interfaces/schema";
 import { TMapper } from "@/reactAdapter/mappers/mappers";
 import {
@@ -10,10 +9,12 @@ import {
   useContext,
   useRef,
 } from "react";
+import { BuildTree } from "../generators/formBuilder";
 
 type TFormContext = {
   formInstance: TFormCore;
   schema: TSchema;
+  tree: ReactElement;
   mappers: TMapper[];
   printValues: () => void;
   printInstance: () => void;
@@ -40,6 +41,10 @@ const FormContextProvider = ({
     new FormCore({ schema, initialValues })
   );
 
+  const tree = useRef<ReactElement>(
+    BuildTree(formInstance.current.fields, mappers)
+  );
+
   const printValues = () => {
     formInstance.current.printValues();
   };
@@ -55,6 +60,7 @@ const FormContextProvider = ({
     formInstance: formInstance.current,
     getFieldInstance,
     schema,
+    tree: tree.current,
     mappers,
     printValues,
     printInstance,

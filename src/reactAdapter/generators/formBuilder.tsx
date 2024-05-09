@@ -44,7 +44,7 @@ const BuildTree = (
       }
     }
   }
-  const children = fields.get(prevKey).children;  
+  const children = fields.get(prevKey).children;
   if (children && children.length > 0) {
     const { component: Component, valueChangeEvent } = mappers.find(
       (el) => el.componentName === fields.get(prevKey).component
@@ -75,16 +75,16 @@ const BuildTree = (
 };
 
 const RenderSchema = () => {
-  const { printValues, printInstance, formInstance, mappers } =
+  const { printValues, printInstance, formInstance, mappers, schema, tree } =
     useFormContext();
-  // const reactTree = BuildReactTree();
-  const reactTree = BuildTree(formInstance.fields, mappers);
+  // const reactTree = BuildReactTreeFromSchema(schema);
+  // const reactTree = BuildTree(formInstance.fields, mappers);
 
   return (
     <>
       <button onClick={printValues}>print values</button>
       <button onClick={printInstance}>print instance</button>
-      <form>{reactTree}</form>
+      <form>{tree}</form>
     </>
   );
 };

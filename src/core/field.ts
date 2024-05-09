@@ -201,10 +201,10 @@ class FormField {
       errors: this.errorSubject$.pipe(startWith([])),
       visibility: this.visibilitySubject$.pipe(startWith(true)),
       apiResponse: this.apiSubject$.pipe(
-        startWith(this.apiResponseData),
+        startWith({ response: "" }),
         map(({ response }) => response)
       ),
-      props: this.propsSubject$.pipe(startWith(this.props)),
+      props: this.propsSubject$.pipe(startWith(this._props)),
     });
     this.templateSubject$.next({ key: this.name });
   }

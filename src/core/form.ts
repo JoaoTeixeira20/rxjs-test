@@ -2,7 +2,7 @@ import { TSchema, TValidations } from "@/interfaces/schema";
 import FormField, { IFormField } from "./field";
 import { validations } from "@/core/validations/validations";
 import { traverseObject } from "@/helpers/helpers";
-import { Subject } from "rxjs";
+import { debounceTime, Subject } from "rxjs";
 import get from "lodash/get";
 import set from "lodash/set";
 
@@ -29,60 +29,13 @@ class FormCore {
     this.schema = schema;
     this.fields = new Map();
     this.initialValues = initialValues;
-    const indexes = FormCore.checkIndexes(schema);
-    if (indexes.length > new Set(indexes).size)
-      throw new Error("duplicate indexes while generating the schema");
+    FormCore.checkIndexes(schema);
     this.templateSubject$ = new Subject();
     this.subscribedTemplates = [];
     this.serializeStructure(this.schema);
     this.subscribeTemplates();
-    this.templateSubject$.subscribe(({ key }) => {
-      this.subscribedTemplates.map((el) => {
-        if (el.origin === key) {
-          const destinationValue =
-            el.destinationPath.length > 0
-              ? get(
-                  this.fields.get(el.destination)[
-                    el.destinationProperty as keyof IFormField
-                  ],
-                  el.destinationPath
-                )
-              : this.fields.get(el.destination)[
-                  el.destinationProperty as keyof IFormField
-                ];
-          const originValue =
-            el.originPath.length > 0
-              ? get(
-                  this.fields.get(el.origin)[
-                    el.originProperty as keyof IFormField
-                  ],
-                  el.originPath
-                )
-              : this.fields.get(el.origin)[
-                  el.originProperty as keyof IFormField
-                ];
-          if (destinationValue !== originValue) {
-            console.log(`need to update ${el.destination} from ${el.origin}`);
-            if (el.destinationPath.length > 0) {
-              const propState = {
-                ...(this.fields.get(el.destination)[
-                  el.destinationProperty as keyof IFormField
-                ] as object),
-              };
-              set(propState, el.destinationPath, originValue);
-              this.fields.get(el.destination)[
-                el.destinationProperty as keyof IFormField
-              ] = propState as never;
-              return;
-            }
-            this.fields.get(el.destination)[
-              el.destinationProperty as keyof IFormField
-            ] = originValue as never;
-            return;
-          }
-        }
-      });
-    });
+    this.templateSubject$
+      .subscribe(this.refreshTemplates.bind(this));
   }
 
   subscribeTemplates() {
@@ -119,6 +72,53 @@ class FormCore {
       }
     );
     // console.log(subscribedProps);
+  }
+
+  refreshTemplates({ key }: { key: string }) {
+    console.log("templated ", key);
+    this.subscribedTemplates.map((el) => {
+      if (el.origin === key) {
+        const destinationValue =
+          el.destinationPath.length > 0
+            ? get(
+                this.fields.get(el.destination)[
+                  el.destinationProperty as keyof IFormField
+                ],
+                el.destinationPath
+              )
+            : this.fields.get(el.destination)[
+                el.destinationProperty as keyof IFormField
+              ];
+        const originValue =
+          el.originPath.length > 0
+            ? get(
+                this.fields.get(el.origin)[
+                  el.originProperty as keyof IFormField
+                ],
+                el.originPath
+              )
+            : this.fields.get(el.origin)[el.originProperty as keyof IFormField];
+        if (destinationValue !== originValue) {
+          // console.log(`need to update ${el.destination} from ${el.origin}`);
+          if (el.destinationPath.length > 0) {
+            const propState = {
+              ...(this.fields.get(el.destination)[
+                el.destinationProperty as keyof IFormField
+              ] as object),
+            };
+            set(propState, el.destinationPath, originValue);
+            this.fields.get(el.destination)[
+              el.destinationProperty as keyof Omit<IFormField, "stateValue">
+            ] = propState as never;
+            return;
+          }
+          this.fields.get(el.destination)[
+            el.destinationProperty as keyof Omit<IFormField, "stateValue">
+          ] = originValue as never;
+          return;
+        }
+      }
+    });
   }
 
   private static checkIndexes = (
@@ -209,7 +209,7 @@ class FormCore {
       struct.children.forEach((el) => {
         return this.serializeStructure(
           el,
-          parent ? `${parent}.${struct.name}` : struct.name
+          `${path ? `${path}.` : ``}${struct.name}`
         );
       });
     }

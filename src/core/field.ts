@@ -39,6 +39,7 @@ class FormField {
   // variable properties
   _props: Record<string, unknown>;
   _value: unknown;
+  _stateValue: unknown;
   _visibility: boolean;
   _errors: Partial<Record<keyof TValidations, string>>;
 
@@ -115,14 +116,29 @@ class FormField {
     this.templateSubject$.next({ key: this.name });
   }
 
+  get stateValue() {
+    return this._stateValue;
+  }
+
   get value() {
     return this._value;
   }
 
   set value(value: unknown) {
     if (typeof value === "undefined" || isEqual(value, this.value)) return;
-    this._value = this.formatValue(value);
-    this.valueSubject$.next(this.value);
+    if (
+      typeof value === "object" &&
+      "_value" in value &&
+      "_stateValue" in value
+    ) {
+      this._value = this.formatValue(value._value);
+      this._stateValue = this.formatValue(value._stateValue);
+    } else {
+      this._value = this.formatValue(value);
+      this._stateValue = this.formatValue(value);
+    }
+    // this._value = this.formatValue(value);
+    this.valueSubject$.next(this._stateValue);
     this.templateSubject$.next({ key: this.name });
   }
 
@@ -185,10 +201,10 @@ class FormField {
       errors: this.errorSubject$.pipe(startWith([])),
       visibility: this.visibilitySubject$.pipe(startWith(true)),
       apiResponse: this.apiSubject$.pipe(
-        startWith({ response: null }),
+        startWith(this.apiResponseData),
         map(({ response }) => response)
       ),
-      props: this.propsSubject$.pipe(startWith(this._props)),
+      props: this.propsSubject$.pipe(startWith(this.props)),
     });
     this.templateSubject$.next({ key: this.name });
   }
@@ -197,7 +213,7 @@ class FormField {
     value,
     event,
   }: {
-    value: unknown;
+    value: unknown | { _value: unknown; _stateValue: unknown };
     event: keyof HTMLElementEventMap;
   }): void {
     this.value = value;

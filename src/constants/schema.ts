@@ -23,19 +23,19 @@ const schema: TSchema = {
         label: "dropdown",
         optionList: [
           {
-            id: "1",
-            label: "1",
-            name: "1",
+            id: "one",
+            label: "one",
+            value: "1",
           },
           {
-            id: "2",
-            label: "2",
-            name: "2",
+            id: "two",
+            label: "two",
+            value: "2",
           },
           {
-            id: "3",
-            label: "3",
-            name: "3",
+            id: "three",
+            label: "three",
+            value: "3",
           },
         ],
       },
@@ -44,8 +44,8 @@ const schema: TSchema = {
       component: "libinput",
       name: "name",
       props: {
-        label: "${datepickertest.props.label}",
-        variant: "grey",
+        label: "${name.apiResponseData.response}",
+        variant: "border",
       },
       validations: {
         input: {
@@ -151,6 +151,7 @@ const schema: TSchema = {
               name: "bal",
               props: {
                 label: "${surname.props.label}",
+                variant: "grey"
               },
             },
           ],

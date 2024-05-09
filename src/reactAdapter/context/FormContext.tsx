@@ -46,7 +46,6 @@ const FormContextProvider = ({
 
   const printInstance = () => {
     console.log(formInstance);
-    formInstance.current.subscribeTemplates();
   };
 
   const getFieldInstance = (index: string): FormField =>

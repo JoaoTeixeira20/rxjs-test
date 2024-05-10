@@ -38,7 +38,6 @@ class FormCore {
   }
 
   subscribeTemplates() {
-    // const subscribedProps: unknown[] = [];
     this.fields.forEach(
       (
         {
@@ -65,16 +64,13 @@ class FormCore {
         };
         const result = traverseObject(template, key);
         if (result.length > 0) {
-          // subscribedProps.push(result);
           this.subscribedTemplates = [...this.subscribedTemplates, ...result];
         }
       }
     );
-    // console.log(subscribedProps);
   }
 
   refreshTemplates({ key }: { key: string }) {
-    console.log("templated ", key);
     this.subscribedTemplates.map((el) => {
       if (el.origin === key) {
         const destinationValue =
@@ -107,12 +103,18 @@ class FormCore {
             };
             set(propState, el.destinationPath, originValue);
             this.fields.get(el.destination)[
-              el.destinationProperty as keyof Omit<IFormField, "stateValue">
+              el.destinationProperty as keyof Omit<
+                IFormField,
+                "stateValue" | "errorsString"
+              >
             ] = propState as never;
             return;
           }
           this.fields.get(el.destination)[
-            el.destinationProperty as keyof Omit<IFormField, "stateValue">
+            el.destinationProperty as keyof Omit<
+              IFormField,
+              "stateValue" | "errorsString"
+            >
           ] = originValue as never;
           return;
         }

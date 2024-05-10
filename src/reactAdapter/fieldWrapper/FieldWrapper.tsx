@@ -87,13 +87,13 @@ const FieldWrapper = ({
         <Component {...props} onChange={handleChange} value={value}>
           {children && children}
         </Component>
-        {errors.length > 0 &&
+        {/* {errors.length > 0 &&
           errors.map((error) => (
             <div key={error} style={{ color: "red" }}>
               {error}
             </div>
           ))}
-        {apiResponse && <div>{JSON.stringify(apiResponse)}</div>}
+        {apiResponse && <div>{JSON.stringify(apiResponse)}</div>} */}
       </>
     )
   );

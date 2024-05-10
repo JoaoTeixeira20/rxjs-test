@@ -42,7 +42,7 @@ class FormField {
   _stateValue: unknown;
   _visibility: boolean;
   _errors: Partial<Record<keyof TValidations, string>>;
-  errorsString: string;
+  _errorsString: string;
   _apiResponseData: { response: unknown };
   // subjects/observables
   propsSubject$: Subject<Record<string, unknown>>;
@@ -98,7 +98,7 @@ class FormField {
     this._value = this.formatValue(initialValue || "");
     this._visibility = true;
     this._apiResponseData = { response: "" };
-    this.errorsString = "";
+    this._errorsString = "";
     this.valueSubject$ = new Subject();
     this.errorSubject$ = new Subject();
     this.visibilitySubject$ = new Subject();
@@ -162,9 +162,13 @@ class FormField {
   set errors(errors: Partial<Record<keyof TValidations, string>>) {
     if (typeof errors === "undefined" || isEqual(errors, this.errors)) return;
     this._errors = errors;
-    this.errorsString = Object.values(this.errors).join(", ");
+    this._errorsString = Object.values(this.errors).join(", ");
     this.errorSubject$.next(Object.values(this.errors));
     this.templateSubject$.next({ key: this.name });
+  }
+
+  get errorsString() {
+    return this._errorsString;
   }
 
   get apiResponseData() {

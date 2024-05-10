@@ -1,15 +1,15 @@
-import FormField from "@/core/field";
-import FormCore, { TFormCore } from "@/core/form";
-import { TSchema } from "@/interfaces/schema";
-import { TMapper } from "@/reactAdapter/mappers/mappers";
+import FormField from '@/core/field';
+import FormCore, { TFormCore } from '@/core/form';
+import { TSchema } from '@/interfaces/schema';
+import { TMapper } from '@/reactAdapter/mappers/mappers';
 import {
   createContext,
   PropsWithChildren,
   ReactElement,
   useContext,
   useRef,
-} from "react";
-import { BuildTree } from "../generators/formBuilder";
+} from 'react';
+import { BuildTree } from '../generators/formBuilder';
 
 type TFormContext = {
   formInstance: TFormCore;
@@ -74,7 +74,7 @@ const FormContextProvider = ({
 const useFormContext = (): TFormContext => {
   context = useContext(FormContext);
 
-  if (typeof context === "undefined") {
+  if (typeof context === 'undefined') {
     throw new Error(`useFormContext must be used within a FormContextProvider`);
   }
 

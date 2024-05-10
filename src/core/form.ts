@@ -1,10 +1,10 @@
-import { TSchema, TValidations } from "@/interfaces/schema";
-import FormField, { IFormField } from "./field";
-import { validations } from "@/core/validations/validations";
-import { traverseObject } from "@/helpers/helpers";
-import { debounceTime, Subject } from "rxjs";
-import get from "lodash/get";
-import set from "lodash/set";
+import { TSchema, TValidations } from '@/interfaces/schema';
+import FormField, { IFormField } from './field';
+import { validations } from '@/core/validations/validations';
+import { traverseObject } from '@/helpers/helpers';
+import { debounceTime, Subject } from 'rxjs';
+import get from 'lodash/get';
+import set from 'lodash/set';
 
 class FormCore {
   schema: TSchema;
@@ -38,6 +38,7 @@ class FormCore {
   }
 
   subscribeTemplates() {
+    // const subscribedProps: unknown[] = [];
     this.fields.forEach(
       (
         {
@@ -64,13 +65,16 @@ class FormCore {
         };
         const result = traverseObject(template, key);
         if (result.length > 0) {
+          // subscribedProps.push(result);
           this.subscribedTemplates = [...this.subscribedTemplates, ...result];
         }
       }
     );
+    // console.log(subscribedProps);
   }
 
   refreshTemplates({ key }: { key: string }) {
+    console.log('templated ', key);
     this.subscribedTemplates.map((el) => {
       if (el.origin === key) {
         const destinationValue =
@@ -103,18 +107,12 @@ class FormCore {
             };
             set(propState, el.destinationPath, originValue);
             this.fields.get(el.destination)[
-              el.destinationProperty as keyof Omit<
-                IFormField,
-                "stateValue" | "errorsString"
-              >
+              el.destinationProperty as keyof Omit<IFormField, 'stateValue'>
             ] = propState as never;
             return;
           }
           this.fields.get(el.destination)[
-            el.destinationProperty as keyof Omit<
-              IFormField,
-              "stateValue" | "errorsString"
-            >
+            el.destinationProperty as keyof Omit<IFormField, 'stateValue'>
           ] = originValue as never;
           return;
         }

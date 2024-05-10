@@ -40,19 +40,19 @@ function traverseObject(
       const value = obj[key];
       if (Array.isArray(value)) {
         value.forEach((item: unknown, index: number) => {
-          if (typeof item === "object") {
+          if (typeof item === 'object') {
             result.push(
               ...traverseObject(
                 item,
                 `${path ? `${path}.` : ``}${key}.${index}`
               )
             );
-          } else if (typeof item === "string") {
-            if (String(item).startsWith("$")) {
-              const extractedPath = item.replace(/\$|{|}/g, "").split(".");
+          } else if (typeof item === 'string') {
+            if (String(item).startsWith('$')) {
+              const extractedPath = item.replace(/\$|{|}/g, '').split('.');
               const extractedOriginPath = `${
                 path ? `${path}.` : ``
-              }${key}`.split(".");
+              }${key}`.split('.');
               result.push({
                 origin: extractedPath[0],
                 originProperty: extractedPath[1],
@@ -64,14 +64,14 @@ function traverseObject(
             }
           }
         });
-      } else if (typeof value === "object") {
+      } else if (typeof value === 'object') {
         result.push(
           ...traverseObject(value, `${path ? `${path}.` : ``}${key}`)
         );
-      } else if (typeof value === "string") {
-        if (value.startsWith("$")) {
-          const extractedPath = value.replace(/\$|{|}/g, "").split(".");
-          const destinationPath = `${path ? `${path}.` : ``}${key}`.split(".");
+      } else if (typeof value === 'string') {
+        if (value.startsWith('$')) {
+          const extractedPath = value.replace(/\$|{|}/g, '').split('.');
+          const destinationPath = `${path ? `${path}.` : ``}${key}`.split('.');
           result.push({
             origin: extractedPath[0],
             originProperty: extractedPath[1],

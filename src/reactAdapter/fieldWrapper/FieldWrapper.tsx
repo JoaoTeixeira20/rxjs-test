@@ -1,4 +1,4 @@
-import { useFormContext } from "@/reactAdapter/context/FormContext";
+import { useFormContext } from '@/reactAdapter/context/FormContext';
 import {
   useState,
   useEffect,
@@ -8,7 +8,7 @@ import {
   ReactElement,
   useMemo,
   ElementType,
-} from "react";
+} from 'react';
 
 const FieldWrapper = ({
   index,
@@ -67,11 +67,11 @@ const FieldWrapper = ({
     let value;
     if (valueChangeEvent) {
       value = valueChangeEvent(event);
-      fieldInstance.emitValue({ value, event: "input" });
+      fieldInstance.emitValue({ value, event: 'input' });
       return;
     }
     value = (event as SyntheticEvent<HTMLInputElement>).currentTarget.value;
-    fieldInstance.emitValue({ value, event: "input" });
+    fieldInstance.emitValue({ value, event: 'input' });
   }, []);
 
   // useEffect(() => {
@@ -83,17 +83,17 @@ const FieldWrapper = ({
   return (
     visibility && (
       <>
-        <b style={{ padding: "0px", margin: "0px" }}>{index}</b>
+        <b style={{ padding: '0px', margin: '0px' }}>{index}</b>
         <Component {...props} onChange={handleChange} value={value}>
           {children && children}
         </Component>
-        {/* {errors.length > 0 &&
+        {errors.length > 0 &&
           errors.map((error) => (
-            <div key={error} style={{ color: "red" }}>
+            <div key={error} style={{ color: 'red' }}>
               {error}
             </div>
           ))}
-        {apiResponse && <div>{JSON.stringify(apiResponse)}</div>} */}
+        {apiResponse && <div>{JSON.stringify(apiResponse)}</div>}
       </>
     )
   );

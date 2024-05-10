@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": [
-        "dom",
-        "dom.iterable",
-        "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "noImplicitAny": true,
     "allowJs": true,
     "skipLibCheck": true,
@@ -28,6 +24,6 @@
       "@/*": ["*"]
     }
   },
-  "include": ["**/*.ts","**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

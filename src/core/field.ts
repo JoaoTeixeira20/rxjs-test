@@ -244,14 +244,15 @@ class FormField {
         if (errors) delete errors[validationKey];
         this.errors = errors;
       }
+      // remove later
       this.props = {
         ...this.props,
-        errorMessages: Object.values(this.errors || []).join(),
+        errorMessage: Object.values(this.errors || []).join(),
       };
-      this.propsSubject$.next({
-        ...this._props,
-        errorMessage: Object.values(this._errors || []).join(),
-      });
+      // this.propsSubject$.next({
+      //   ...this._props,
+      //   errorMessage: Object.values(this._errors || []).join(),
+      // });
     });
   }
 

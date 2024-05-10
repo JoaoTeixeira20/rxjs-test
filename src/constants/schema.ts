@@ -46,6 +46,7 @@ const schema: TSchema = {
       props: {
         label: "${name.apiResponseData.response}",
         variant: "border",
+        errorMessage: "${name.errorsString}"
       },
       validations: {
         input: {

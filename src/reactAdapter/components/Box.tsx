@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactElement } from "react";
+import { PropsWithChildren, ReactElement } from 'react';
 
 const Box = (props: PropsWithChildren<{ name: string }>): ReactElement => {
   return (

@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactElement } from "react";
+import { PropsWithChildren, ReactElement } from 'react';
 
 const InputElement = ({
   label,
@@ -10,15 +10,14 @@ const InputElement = ({
   onChange: () => void;
   value: string;
 }>): ReactElement => {
-
   return (
     <>
       <label>{label}</label>
       <input
-        type="text"
+        type='text'
         value={value}
         onChange={onChange}
-        placeholder="Type something..."
+        placeholder='Type something...'
       />
       {children}
     </>

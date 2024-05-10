@@ -1,9 +1,9 @@
-import Container from "@/reactAdapter/components/Container/Container";
-import InputElement from "@/reactAdapter/components/InputElement/InputElement";
-import { Input } from "@bolttech/atoms-input";
-import { DatePicker } from "@bolttech/molecules-date-picker";
-import { Dropdown } from "@bolttech/molecules-dropdown";
-import { ElementType } from "react";
+import Container from '@/reactAdapter/components/Container/Container';
+import InputElement from '@/reactAdapter/components/InputElement/InputElement';
+import { Input } from '@bolttech/atoms-input';
+import { DatePicker } from '@bolttech/molecules-date-picker';
+import { Dropdown } from '@bolttech/molecules-dropdown';
+import { ElementType } from 'react';
 
 type TMapper = {
   component: ElementType;
@@ -16,19 +16,19 @@ type TMapper = {
 const mappers: TMapper[] = [
   {
     component: InputElement,
-    componentName: "input",
+    componentName: 'input',
   },
   {
     component: Container,
-    componentName: "div",
+    componentName: 'div',
   },
   {
     component: Input,
-    componentName: "libinput",
+    componentName: 'libinput',
   },
   {
     component: Dropdown,
-    componentName: "dropdown",
+    componentName: 'dropdown',
     valueChangeEvent: (event: {
       id: string;
       label: string;
@@ -37,7 +37,7 @@ const mappers: TMapper[] = [
   },
   {
     component: DatePicker,
-    componentName: "datepicker",
+    componentName: 'datepicker',
     valueChangeEvent: (event: string) => event,
   },
 ];

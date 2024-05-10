@@ -5,8 +5,8 @@ import {
   TSchema,
   TValidations,
   TVisibility,
-} from "@/interfaces/schema";
-import { validations } from "@/core/validations/validations";
+} from '@/interfaces/schema';
+import { validations } from '@/core/validations/validations';
 import {
   combineLatest,
   debounceTime,
@@ -15,12 +15,12 @@ import {
   Subject,
   map,
   Subscription,
-} from "rxjs";
-import { makeRequest } from "@/helpers/helpers";
-import debounce from "lodash/debounce";
-import get from "lodash/get";
-import { formatters } from "./formatters/formatters";
-import isEqual from "lodash/isEqual";
+} from 'rxjs';
+import { makeRequest } from '@/helpers/helpers';
+import debounce from 'lodash/debounce';
+import get from 'lodash/get';
+import { formatters } from './formatters/formatters';
+import isEqual from 'lodash/isEqual';
 
 class FormField {
   name: string;
@@ -42,7 +42,7 @@ class FormField {
   _stateValue: unknown;
   _visibility: boolean;
   _errors: Partial<Record<keyof TValidations, string>>;
-  _errorsString: string;
+
   _apiResponseData: { response: unknown };
   // subjects/observables
   propsSubject$: Subject<Record<string, unknown>>;
@@ -95,10 +95,9 @@ class FormField {
     this.templateSubject$ = templateSubject$;
     this.debouncedRequest = debounce(this.apiRequest, 1000).bind(this);
     this._props = schemaComponent.props;
-    this._value = this.formatValue(initialValue || "");
+    this._value = this.formatValue(initialValue || '');
     this._visibility = true;
-    this._apiResponseData = { response: "" };
-    this._errorsString = "";
+    this._apiResponseData = { response: '' };
     this.valueSubject$ = new Subject();
     this.errorSubject$ = new Subject();
     this.visibilitySubject$ = new Subject();
@@ -112,7 +111,7 @@ class FormField {
   }
 
   set props(props: Record<string, unknown>) {
-    if (typeof props === "undefined" || isEqual(props, this.props)) return;
+    if (typeof props === 'undefined' || isEqual(props, this.props)) return;
     this._props = props;
     this.propsSubject$.next(this.props);
     this.templateSubject$.next({ key: this.name });
@@ -127,11 +126,11 @@ class FormField {
   }
 
   set value(value: unknown) {
-    if (typeof value === "undefined" || isEqual(value, this.value)) return;
+    if (typeof value === 'undefined' || isEqual(value, this.value)) return;
     if (
-      typeof value === "object" &&
-      "_value" in value &&
-      "_stateValue" in value
+      typeof value === 'object' &&
+      '_value' in value &&
+      '_stateValue' in value
     ) {
       this._value = this.formatValue(value._value);
       this._stateValue = this.formatValue(value._stateValue);
@@ -149,7 +148,7 @@ class FormField {
   }
 
   set visibility(visible: boolean) {
-    if (typeof visible === "undefined" || visible === this.visibility) return;
+    if (typeof visible === 'undefined' || visible === this.visibility) return;
     this._visibility = visible;
     this.visibilitySubject$.next(this.visibility);
     this.templateSubject$.next({ key: this.name });
@@ -160,15 +159,10 @@ class FormField {
   }
 
   set errors(errors: Partial<Record<keyof TValidations, string>>) {
-    if (typeof errors === "undefined" || isEqual(errors, this.errors)) return;
+    if (typeof errors === 'undefined' || isEqual(errors, this.errors)) return;
     this._errors = errors;
-    this._errorsString = Object.values(this.errors).join(", ");
     this.errorSubject$.next(Object.values(this.errors));
     this.templateSubject$.next({ key: this.name });
-  }
-
-  get errorsString() {
-    return this._errorsString;
   }
 
   get apiResponseData() {
@@ -177,7 +171,7 @@ class FormField {
 
   set apiResponseData(response) {
     if (
-      typeof response === "undefined" ||
+      typeof response === 'undefined' ||
       isEqual(response, this.apiResponseData)
     )
       return;
@@ -250,6 +244,14 @@ class FormField {
         if (errors) delete errors[validationKey];
         this.errors = errors;
       }
+      this.props = {
+        ...this.props,
+        errorMessages: Object.values(this.errors || []).join(),
+      };
+      this.propsSubject$.next({
+        ...this._props,
+        errorMessage: Object.values(this._errors || []).join(),
+      });
     });
   }
 

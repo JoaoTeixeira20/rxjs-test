@@ -1,52 +1,51 @@
-import { TSchema } from "@/interfaces/schema";
+import { TSchema } from '@/interfaces/schema';
 
 const schema: TSchema = {
-  component: "div",
-  name: "container",
+  component: 'div',
+  name: 'container',
   props: {
-    label: "${bal.value}",
+    label: '${bal.value}',
   },
   children: [
     {
-      component: "datepicker",
-      name: "datepickertest",
+      component: 'datepicker',
+      name: 'datepickertest',
       props: {
-        label: "datepicker",
+        label: 'datepicker',
         min: new Date(),
         max: new Date(new Date().setDate(new Date().getDate() + 120)),
       },
     },
     {
-      component: "dropdown",
-      name: "testdropdown",
+      component: 'dropdown',
+      name: 'testdropdown',
       props: {
-        label: "dropdown",
+        label: 'dropdown',
         optionList: [
           {
-            id: "one",
-            label: "one",
-            value: "1",
+            id: 'one',
+            label: 'one',
+            value: '1',
           },
           {
-            id: "two",
-            label: "two",
-            value: "2",
+            id: 'two',
+            label: 'two',
+            value: '2',
           },
           {
-            id: "three",
-            label: "three",
-            value: "3",
+            id: 'three',
+            label: 'three',
+            value: '3',
           },
         ],
       },
     },
     {
-      component: "libinput",
-      name: "name",
+      component: 'libinput',
+      name: 'name',
       props: {
-        label: "${name.apiResponseData.response}",
-        variant: "border",
-        errorMessage: "${name.errorsString}"
+        label: '${name.apiResponseData.response}',
+        variant: 'border',
       },
       validations: {
         input: {
@@ -66,7 +65,7 @@ const schema: TSchema = {
             validations: {
               max: 18,
             },
-            fields: ["foo", "bar"],
+            fields: ['foo', 'bar'],
           },
         ],
       },
@@ -76,51 +75,51 @@ const schema: TSchema = {
             validations: {
               max: 18,
             },
-            fields: ["baz", "bal"],
-            resettedFields: ["bazzilic", "ballistic"],
+            fields: ['baz', 'bal'],
+            resettedFields: ['bazzilic', 'ballistic'],
           },
         ],
       },
       api: {
         input: {
-          method: "GET",
-          url: "https://api.chucknorris.io/jokes/random",
-          valuePath: "value",
+          method: 'GET',
+          url: 'https://api.chucknorris.io/jokes/random',
+          valuePath: 'value',
         },
       },
       errorMessages: {
-        max: "max value reached",
-        min: "min value reached",
-        required: "field required",
+        max: 'max value reached',
+        min: 'min value reached',
+        required: 'field required',
       },
-      formatters: ["capitalize", "dotEvery3chars"],
+      formatters: ['capitalize', 'dotEvery3chars'],
     },
     {
-      component: "div",
-      name: "anothercontainer",
+      component: 'div',
+      name: 'anothercontainer',
       props: {
-        label: "${name.props.label}",
+        label: '${name.props.label}',
       },
       children: [
         {
-          component: "libinput",
-          name: "phone",
+          component: 'libinput',
+          name: 'phone',
           props: {
-            label: "phone",
+            label: 'phone',
           },
         },
         {
-          component: "div",
-          name: "foobarbaz",
+          component: 'div',
+          name: 'foobarbaz',
           props: {
-            label: "foobarbaz",
+            label: 'foobarbaz',
           },
           children: [
             {
-              component: "libinput",
-              name: "foo",
+              component: 'libinput',
+              name: 'foo',
               props: {
-                label: "foo",
+                label: 'foo',
               },
               visibilityConditions: {
                 input: [
@@ -128,31 +127,31 @@ const schema: TSchema = {
                     validations: {
                       max: 18,
                     },
-                    fields: "bar",
+                    fields: 'bar',
                   },
                 ],
               },
             },
             {
-              component: "libinput",
-              name: "bar",
+              component: 'libinput',
+              name: 'bar',
               props: {
-                label: "bar",
+                label: 'bar',
               },
             },
             {
-              component: "libinput",
-              name: "baz",
+              component: 'libinput',
+              name: 'baz',
               props: {
-                label: "${baz.value}",
+                label: '${baz.value}',
               },
             },
             {
-              component: "libinput",
-              name: "bal",
+              component: 'libinput',
+              name: 'bal',
               props: {
-                label: "${surname.props.label}",
-                variant: "grey"
+                label: '${surname.props.label}',
+                variant: 'grey',
               },
             },
           ],
@@ -160,10 +159,10 @@ const schema: TSchema = {
       ],
     },
     {
-      component: "libinput",
-      name: "surname",
+      component: 'libinput',
+      name: 'surname',
       props: {
-        label: "${name.value}",
+        label: '${name.value}',
       },
     },
   ],

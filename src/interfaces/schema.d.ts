@@ -1,16 +1,49 @@
-type TComponents = "input" | "div" | "libinput" | "dropdown" | "datepicker";
+type TComponents = 'input' | 'div' | 'libinput' | 'dropdown' | 'datepicker';
 
 type TProps = {
   label: string;
 };
 
+// Validation types
+type TLengthValidation = {
+  rule:
+    | 'equal'
+    | 'notEqual'
+    | 'less'
+    | 'lessOrEqual'
+    | 'greater'
+    | 'greaterOrEqual';
+  target: number;
+};
+type TCallbackValidation = (value: unknown) => boolean;
+type TBetweenValidation = {
+  start: number;
+  end: number;
+};
+
 type TValidations = {
   max?: number;
   min?: number;
+  length?: TLengthValidation;
   required?: boolean;
+  greaterThan?: number;
+  value?: unknown;
+  regex?: string;
+  email?: boolean;
+  url?: boolean;
+  onlyLetters?: boolean;
+  notAllowSpaces?: boolean;
+  callback?: TCallbackValidation;
+  isNumber?: boolean;
+  hasNoExtraSpaces?: boolean;
+  notEmpty?: boolean;
+  between?: TBetweenValidation;
+  sequential?: boolean;
+  repeated?: boolean;
+  includes?: string[] | number[];
 };
 
-type TFormatters = "dotEvery3chars" | "capitalize" | "onlyNumbers";
+type TFormatters = 'dotEvery3chars' | 'capitalize' | 'onlyNumbers';
 
 type TVisibility = {
   validations: TValidations;
@@ -20,7 +53,7 @@ type TVisibility = {
 type TResetValues = TVisibility & { resettedFields: string[] | string };
 
 type TApi = {
-  method: "GET" | "POST";
+  method: 'GET' | 'POST';
   url: string;
   valuePath: string;
 };

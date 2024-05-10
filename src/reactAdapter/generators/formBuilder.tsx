@@ -1,9 +1,9 @@
-import { TSchema } from "@/interfaces/schema";
-import { ReactElement } from "react";
-import { useFormContext } from "../context/FormContext";
-import FieldWrapper from "../fieldWrapper/FieldWrapper";
-import { IFormField } from "@/core/field";
-import { TMapper } from "../mappers/mappers";
+import { TSchema } from '@/interfaces/schema';
+import { ReactElement } from 'react';
+import { useFormContext } from '../context/FormContext';
+import FieldWrapper from '../fieldWrapper/FieldWrapper';
+import { IFormField } from '@/core/field';
+import { TMapper } from '../mappers/mappers';
 
 /**
  * @deprecated Use BuildTree instead

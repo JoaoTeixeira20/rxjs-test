@@ -1,6 +1,6 @@
-import { Subject } from "rxjs";
-import { TSchema, TValidations } from "./schema";
-import { TFormStructure } from "./structure";
+import { Subject } from 'rxjs';
+import { TSchema, TValidations } from './schema';
+import { TFormStructure } from './structure';
 
 interface IFormCore {
   structure: TFormStructure;

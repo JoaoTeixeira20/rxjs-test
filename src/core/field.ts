@@ -1,11 +1,3 @@
-import {
-  TApi,
-  TFormatters,
-  TResetValues,
-  TSchema,
-  TValidations,
-  TVisibility,
-} from '@/interfaces/schema';
 import { validations } from '@/core/validations/validations';
 import {
   combineLatest,
@@ -21,6 +13,18 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import { formatters } from './formatters/formatters';
 import isEqual from 'lodash/isEqual';
+import {
+  TApi,
+  TErrorList,
+  TErrorMessages,
+  TFormatters,
+  TResetValues,
+  TValidationMethods,
+  TValidations,
+  TVisibilityContitions,
+} from '@/types/schemaTypes';
+import { ISchema } from '@/interfaces/schema';
+import { IState } from '@/interfaces/state';
 
 class FormField {
   name: string;
@@ -28,22 +32,18 @@ class FormField {
   path: string;
   children: string[];
   // config properties
-  validations: Partial<Record<keyof HTMLElementEventMap, TValidations>>;
-  visibilityConditions: Partial<
-    Record<keyof HTMLElementEventMap, TVisibility[]>
-  >;
-  resetValues: Partial<Record<keyof HTMLElementEventMap, TResetValues[]>>;
-  errorMessages: Partial<Record<keyof TValidations, string>>;
-  api: Partial<
-    Record<keyof HTMLElementEventMap, TApi> & { fallbackValue?: unknown }
-  >;
+  validations: TValidations;
+  visibilityConditions: TVisibilityContitions;
+  resetValues: TResetValues;
+  errorMessages: TErrorMessages;
+  api: TApi;
   formatters: TFormatters[];
   // variable properties
   _props: Record<string, unknown>;
   _value: unknown;
   _stateValue: unknown;
   _visibility: boolean;
-  _errors: Partial<Record<keyof TValidations, string>>;
+  _errors: TErrorList;
   _errorsString: string;
   _apiResponseData: { response: unknown };
   // subjects/observables
@@ -52,12 +52,7 @@ class FormField {
   valueSubject$: Subject<unknown>;
   visibilitySubject$: Subject<boolean>;
   apiSubject$: Subject<{ response: unknown }>;
-  fieldState$: Observable<{
-    props: Record<string, unknown>;
-    errors: string[];
-    visibility: boolean;
-    apiResponse: unknown;
-  }>;
+  fieldState$: Observable<IState>;
   fieldStateSubscription$: Subscription;
   templateSubject$: Subject<{ key: string }>;
   // form state handlers
@@ -74,7 +69,7 @@ class FormField {
     initialValue,
     templateSubject$,
   }: {
-    schemaComponent: TSchema;
+    schemaComponent: ISchema;
     path: string;
     children: string[];
     validateVisibility: (event: keyof HTMLElementEventMap, key: string) => void;
@@ -161,7 +156,7 @@ class FormField {
     return this._errors;
   }
 
-  set errors(errors: Partial<Record<keyof TValidations, string>>) {
+  set errors(errors: TErrorList) {
     if (typeof errors === 'undefined' || isEqual(errors, this.errors)) return;
     this._errors = errors;
     this.errorSubject$.next(Object.values(this.errors));
@@ -235,27 +230,29 @@ class FormField {
   validateField(event: keyof HTMLElementEventMap) {
     const structValidations = this.validations?.[event];
     if (!structValidations) return;
-    Object.keys(structValidations).map((validationKey: keyof TValidations) => {
-      const error = validations[validationKey](this.value, structValidations);
-      if (error) {
-        this.errors = {
-          ...this.errors,
-          [validationKey]: this.errorMessages[validationKey],
+    Object.keys(structValidations).map(
+      (validationKey: keyof TValidationMethods) => {
+        const error = validations[validationKey](this.value, structValidations);
+        if (error) {
+          this.errors = {
+            ...this.errors,
+            [validationKey]: this.errorMessages[validationKey],
+          };
+        } else {
+          const errors = { ...this.errors };
+          if (errors) delete errors[validationKey];
+          this.errors = errors;
+        }
+        this.props = {
+          ...this.props,
+          errorMessages: Object.values(this.errors || []).join(),
         };
-      } else {
-        const errors = { ...this.errors };
-        if (errors) delete errors[validationKey];
-        this.errors = errors;
+        this.propsSubject$.next({
+          ...this._props,
+          errorMessage: Object.values(this._errors || []).join(),
+        });
       }
-      this.props = {
-        ...this.props,
-        errorMessages: Object.values(this.errors || []).join(),
-      };
-      this.propsSubject$.next({
-        ...this._props,
-        errorMessage: Object.values(this._errors || []).join(),
-      });
-    });
+    );
   }
 
   formatValue(value: unknown): unknown {

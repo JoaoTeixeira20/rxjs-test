@@ -1,6 +1,5 @@
 import FormField from '@/core/field';
 import FormCore, { TFormCore } from '@/core/form';
-import { TSchema } from '@/interfaces/schema';
 import { TMapper } from '@/reactAdapter/mappers/mappers';
 import {
   createContext,
@@ -10,10 +9,11 @@ import {
   useRef,
 } from 'react';
 import { BuildTree } from '../generators/formBuilder';
+import { ISchema } from '@/interfaces/schema';
 
 type TFormContext = {
   formInstance: TFormCore;
-  schema: TSchema;
+  schema: ISchema;
   tree: ReactElement;
   mappers: TMapper[];
   printValues: () => void;
@@ -22,7 +22,7 @@ type TFormContext = {
 };
 
 type TFormContextProvider = {
-  schema: TSchema;
+  schema: ISchema;
   mappers: TMapper[];
   initialValues?: Record<string, unknown>;
 };

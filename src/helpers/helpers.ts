@@ -1,3 +1,4 @@
+import { TSubscribedTemplates } from '@/types/templateTypes';
 import { OutgoingHttpHeaders } from 'http2';
 
 function makeRequest(
@@ -30,25 +31,8 @@ function makeRequest(
   });
 }
 
-function traverseObject(
-  obj: any,
-  path?: string
-): {
-  originKey: string;
-  originProperty: string;
-  originPath: string[];
-  destinationKey: string;
-  destinationProperty: string;
-  destinationPath: string[];
-}[] {
-  const result: {
-    originKey: string;
-    originProperty: string;
-    originPath: string[];
-    destinationKey: string;
-    destinationProperty: string;
-    destinationPath: string[];
-  }[] = [];
+function traverseObject(obj: any, path?: string): TSubscribedTemplates[] {
+  const result: TSubscribedTemplates[] = [];
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       const value = obj[key];

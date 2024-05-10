@@ -1,13 +1,19 @@
-import { TValidations } from '@/interfaces/schema';
+import { TValidationMethods } from '@/types/schemaTypes';
 
-export const regex = (value: unknown, validations: TValidations): boolean => {
+export const regex = (
+  value: unknown,
+  validations: TValidationMethods
+): boolean => {
   if (!validations.regex) return false;
 
   const regex = new RegExp(validations.regex);
   return !regex.test(<string>value);
 };
 
-export const email = (value: unknown, validations: TValidations): boolean => {
+export const email = (
+  value: unknown,
+  validations: TValidationMethods
+): boolean => {
   if (!validations.email) return false;
 
   const regex =
@@ -15,7 +21,10 @@ export const email = (value: unknown, validations: TValidations): boolean => {
   return !regex.test(<string>value);
 };
 
-export const url = (value: unknown, validations: TValidations): boolean => {
+export const url = (
+  value: unknown,
+  validations: TValidationMethods
+): boolean => {
   if (!validations.url) return false;
 
   const regex =
@@ -25,7 +34,7 @@ export const url = (value: unknown, validations: TValidations): boolean => {
 
 export const onlyLetters = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!validations.onlyLetters) return false;
 
@@ -34,7 +43,7 @@ export const onlyLetters = (
 
 export const notAllowSpaces = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!validations.notAllowSpaces) return false;
 
@@ -43,7 +52,7 @@ export const notAllowSpaces = (
 
 export const isNumber = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!validations.isNumber) return false;
 
@@ -55,7 +64,7 @@ export const isNumber = (
  */
 export const hasNoExtraSpaces = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!validations.hasNoExtraSpaces) return false;
 
@@ -66,7 +75,7 @@ export const hasNoExtraSpaces = (
 
 export const repeated = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!validations.repeated) return false;
 

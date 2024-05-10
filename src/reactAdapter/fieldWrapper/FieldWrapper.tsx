@@ -1,3 +1,4 @@
+import { IState } from '@/interfaces/state';
 import { useFormContext } from '@/reactAdapter/context/FormContext';
 import {
   useState,
@@ -23,17 +24,13 @@ const FieldWrapper = ({
   const { getFieldInstance } = useFormContext();
   const fieldInstance = useMemo(() => getFieldInstance(index), [index]);
   const [value, setValue] = useState(fieldInstance.value);
-  const [{ errors, visibility, apiResponse, props }, setState] = useState<{
-    errors: string[];
-    visibility: boolean;
-    apiResponse: unknown;
-    props: Record<string, unknown>;
-  }>({
-    errors: [],
-    visibility: fieldInstance.visibility,
-    apiResponse: fieldInstance.apiResponseData?.response,
-    props: fieldInstance.props,
-  });
+  const [{ errors, visibility, apiResponse, props }, setState] =
+    useState<IState>({
+      errors: [],
+      visibility: fieldInstance.visibility,
+      apiResponse: fieldInstance.apiResponseData?.response,
+      props: fieldInstance.props,
+    });
 
   useEffect(() => {
     fieldInstance.mountField();

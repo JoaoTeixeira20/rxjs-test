@@ -1,4 +1,4 @@
-import { TFormatters, TValidations } from '@/interfaces/schema';
+import { TFormatters } from '@/types/schemaTypes';
 
 const formatters: Record<TFormatters, (value: unknown) => unknown> = {
   capitalize: (value) => String(value).toUpperCase(),

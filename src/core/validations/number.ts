@@ -1,13 +1,22 @@
-import { TValidations } from '@/interfaces/schema';
+import { TValidationMethods } from '@/types/schemaTypes';
 
-export const max = (value: unknown, validations: TValidations): boolean => {
+export const max = (
+  value: unknown,
+  validations: TValidationMethods
+): boolean => {
   return Number(value) > Number(validations.max);
 };
-export const min = (value: unknown, validations: TValidations): boolean => {
+export const min = (
+  value: unknown,
+  validations: TValidationMethods
+): boolean => {
   return Number(value) < Number(validations.min);
 };
 
-export const between = (value: unknown, validations: TValidations): boolean => {
+export const between = (
+  value: unknown,
+  validations: TValidationMethods
+): boolean => {
   if (!validations.between) return false;
 
   const replacedValue = String(value).replace(/[^0-9]/g, '');
@@ -21,7 +30,7 @@ export const between = (value: unknown, validations: TValidations): boolean => {
 
 export const sequential = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!validations.sequential) return false;
 

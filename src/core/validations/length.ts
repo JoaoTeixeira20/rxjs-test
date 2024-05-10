@@ -1,6 +1,6 @@
-import { TValidations } from '@/interfaces/schema';
+import { TValidationMethods } from '@/types/schemaTypes';
 
-export default (value: unknown, validations: TValidations): boolean => {
+export default (value: unknown, validations: TValidationMethods): boolean => {
   if (!validations.length) return false;
 
   let targetValue = value as string;

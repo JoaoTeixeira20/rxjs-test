@@ -1,8 +1,8 @@
-import { TValidations } from '@/interfaces/schema';
+import { TValidationMethods } from '@/types/schemaTypes';
 
 export const callback = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!validations.callback) return false;
 

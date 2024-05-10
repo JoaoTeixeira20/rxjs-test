@@ -1,19 +1,19 @@
-import { TSchema } from '@/interfaces/schema';
 import { ReactElement } from 'react';
 import { useFormContext } from '../context/FormContext';
 import FieldWrapper from '../fieldWrapper/FieldWrapper';
 import { IFormField } from '@/core/field';
 import { TMapper } from '../mappers/mappers';
+import { ISchema } from '@/interfaces/schema';
 
 /**
  * @deprecated Use BuildTree instead
  */
-const BuildReactTreeFromSchema = (schema: TSchema): ReactElement => {
+const BuildReactTreeFromSchema = (schema: ISchema): ReactElement => {
   const { component, children, name } = schema;
   const { mappers } = useFormContext();
 
   const childElements = children
-    ? children.map((el: TSchema) => BuildReactTreeFromSchema(el))
+    ? children.map((el: ISchema) => BuildReactTreeFromSchema(el))
     : null;
 
   const { component: Component, valueChangeEvent } = mappers.find(

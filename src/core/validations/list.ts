@@ -1,8 +1,8 @@
-import { TValidations } from '@/interfaces/schema';
+import { TValidationMethods } from '@/types/schemaTypes';
 
 export const includes = (
   value: unknown,
-  validations: TValidations
+  validations: TValidationMethods
 ): boolean => {
   if (!value || !Array.isArray(validations.includes)) return false;
   return !validations.includes.some(

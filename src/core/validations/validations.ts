@@ -1,4 +1,3 @@
-import { TValidations } from '@/interfaces/schema';
 import length from '@/core/validations/length';
 import { min, max, between, sequential } from '@/core/validations/number';
 import {
@@ -12,10 +11,11 @@ import {
 } from '@/core/validations/regex';
 import { callback } from '@/core/validations/custom';
 import { includes } from '@/core/validations/list';
+import { TValidationMethods } from '@/types/schemaTypes';
 
 const validations: Record<
-  keyof TValidations,
-  (value: unknown, validations: TValidations) => boolean
+  keyof TValidationMethods,
+  (value: unknown, validations: TValidationMethods) => boolean
 > = {
   max,
   min,

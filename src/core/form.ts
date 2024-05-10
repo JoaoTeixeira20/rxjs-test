@@ -1,29 +1,24 @@
-import { TSchema, TValidations } from '@/interfaces/schema';
 import FormField, { IFormField } from './field';
 import { validations } from '@/core/validations/validations';
 import { traverseObject } from '@/helpers/helpers';
 import { debounceTime, Subject } from 'rxjs';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import { ISchema } from '@/interfaces/schema';
+import { TValidationMethods } from '@/types/schemaTypes';
+import { TSubscribedTemplates } from '@/types/templateTypes';
 
 class FormCore {
-  schema: TSchema;
+  schema: ISchema;
   fields: Map<string, IFormField>;
   initialValues?: Record<string, unknown>;
   templateSubject$?: Subject<{ key: string }>;
-  subscribedTemplates?: {
-    originKey: string;
-    originProperty: string;
-    originPath: string[];
-    destinationKey: string;
-    destinationProperty: string;
-    destinationPath: string[];
-  }[];
+  subscribedTemplates?: TSubscribedTemplates[];
   constructor({
     schema,
     initialValues,
   }: {
-    schema: TSchema;
+    schema: ISchema;
     initialValues?: Record<string, unknown>;
   }) {
     this.schema = schema;
@@ -149,7 +144,7 @@ class FormCore {
   }
 
   private static checkIndexes = (
-    struct: TSchema,
+    struct: ISchema,
     indexes: string[] = []
   ): string[] => {
     indexes.push(struct.name);
@@ -167,7 +162,7 @@ class FormCore {
     if (!structVisibility) return;
     structVisibility.map((structElement) => {
       Object.keys(structElement.validations).map(
-        (validationKey: keyof TValidations) => {
+        (validationKey: keyof TValidationMethods) => {
           const error = validations[validationKey](
             field.value,
             structElement.validations
@@ -191,7 +186,7 @@ class FormCore {
     if (!structResetValue) return;
     structResetValue.map((structElement) => {
       Object.keys(structElement.validations).map(
-        (validationKey: keyof TValidations) => {
+        (validationKey: keyof TValidationMethods) => {
           const error = validations[validationKey](
             field.value,
             structElement.validations
@@ -219,7 +214,7 @@ class FormCore {
     });
   }
 
-  serializeStructure(struct: TSchema, path?: string): void {
+  serializeStructure(struct: ISchema, path?: string): void {
     this.fields.set(
       struct.name,
       new FormField({

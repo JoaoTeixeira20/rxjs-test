@@ -1,6 +1,6 @@
-import { TSchema } from '@/interfaces/schema';
+import { ISchema } from '@/interfaces/schema';
 
-const schema: TSchema = {
+const schema: ISchema = {
   component: 'div',
   name: 'container',
   props: {

@@ -3,7 +3,7 @@ import { TValidations } from '@/interfaces/schema';
 export default (value: unknown, validations: TValidations): boolean => {
   if (!validations.length) return false;
 
-  let targetValue = value;
+  let targetValue = value as string;
   // We want length even if it is a numeric
   if (typeof targetValue !== 'string') {
     targetValue = value?.toString();

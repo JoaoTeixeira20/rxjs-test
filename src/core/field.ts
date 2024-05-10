@@ -34,7 +34,9 @@ class FormField {
   >;
   resetValues: Partial<Record<keyof HTMLElementEventMap, TResetValues[]>>;
   errorMessages: Partial<Record<keyof TValidations, string>>;
-  api: Partial<Record<keyof HTMLElementEventMap, TApi>>;
+  api: Partial<
+    Record<keyof HTMLElementEventMap, TApi> & { fallbackValue?: unknown }
+  >;
   formatters: TFormatters[];
   // variable properties
   _props: Record<string, unknown>;
@@ -42,7 +44,7 @@ class FormField {
   _stateValue: unknown;
   _visibility: boolean;
   _errors: Partial<Record<keyof TValidations, string>>;
-
+  _errorsString: string;
   _apiResponseData: { response: unknown };
   // subjects/observables
   propsSubject$: Subject<Record<string, unknown>>;
@@ -97,7 +99,8 @@ class FormField {
     this._props = schemaComponent.props;
     this._value = this.formatValue(initialValue || '');
     this._visibility = true;
-    this._apiResponseData = { response: '' };
+    this._apiResponseData = { response: this.api?.fallbackValue };
+    this._errorsString = '';
     this.valueSubject$ = new Subject();
     this.errorSubject$ = new Subject();
     this.visibilitySubject$ = new Subject();
@@ -265,12 +268,25 @@ class FormField {
   }
 
   async apiRequest(event: keyof HTMLElementEventMap) {
-    const apiResquest = this.api?.[event];
-    if (!apiResquest) return;
-    const responseData = await makeRequest(apiResquest.method, apiResquest.url);
-    const apiResponseData = JSON.parse(String(responseData));
-    const response = get(apiResponseData, apiResquest.valuePath);
-    this.apiResponseData = { response };
+    const apiRequest = this.api?.[event];
+    if (!apiRequest) return;
+    try {
+      const responseData = await makeRequest(
+        apiRequest.method,
+        apiRequest.url,
+        apiRequest.headers
+      );
+      const apiResponseData = JSON.parse(String(responseData));
+      const response = get(apiResponseData, apiRequest.resultPath);
+      this.apiResponseData = { response };
+    } catch (e) {
+      this.apiResponseData = {
+        response:
+          typeof this.api.fallbackValue !== 'undefined'
+            ? this.api.fallbackValue
+            : 'error',
+      };
+    }
     // this._apiResponseData = { response };
     // this.apiSubject$.next({ response });
   }

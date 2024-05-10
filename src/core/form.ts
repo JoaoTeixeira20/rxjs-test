@@ -12,10 +12,10 @@ class FormCore {
   initialValues?: Record<string, unknown>;
   templateSubject$?: Subject<{ key: string }>;
   subscribedTemplates?: {
-    origin: string;
+    originKey: string;
     originProperty: string;
     originPath: string[];
-    destination: string;
+    destinationKey: string;
     destinationProperty: string;
     destinationPath: string[];
   }[];
@@ -74,50 +74,78 @@ class FormCore {
   }
 
   refreshTemplates({ key }: { key: string }) {
-    console.log('templated ', key);
-    this.subscribedTemplates.map((el) => {
-      if (el.origin === key) {
-        const destinationValue =
-          el.destinationPath.length > 0
-            ? get(
-                this.fields.get(el.destination)[
-                  el.destinationProperty as keyof IFormField
-                ],
-                el.destinationPath
-              )
-            : this.fields.get(el.destination)[
-                el.destinationProperty as keyof IFormField
-              ];
-        const originValue =
-          el.originPath.length > 0
-            ? get(
-                this.fields.get(el.origin)[
-                  el.originProperty as keyof IFormField
-                ],
-                el.originPath
-              )
-            : this.fields.get(el.origin)[el.originProperty as keyof IFormField];
-        if (destinationValue !== originValue) {
-          // console.log(`need to update ${el.destination} from ${el.origin}`);
-          if (el.destinationPath.length > 0) {
-            const propState = {
-              ...(this.fields.get(el.destination)[
-                el.destinationProperty as keyof IFormField
-              ] as object),
-            };
-            set(propState, el.destinationPath, originValue);
-            this.fields.get(el.destination)[
-              el.destinationProperty as keyof Omit<IFormField, 'stateValue'>
-            ] = propState as never;
-            return;
+    const getValue = ({
+      key,
+      property,
+      path,
+    }: {
+      key: string;
+      property: string;
+      path: string[];
+    }) => {
+      return path.length > 0
+        ? get(this.fields.get(key)[property as keyof IFormField], path)
+        : this.fields.get(key)[property as keyof IFormField];
+    };
+
+    const setValue = ({
+      key,
+      property,
+      path,
+      value,
+    }: {
+      key: string;
+      property: string;
+      path: string[];
+      value: unknown;
+    }) => {
+      if (path.length > 0) {
+        const propState = {
+          ...(this.fields.get(key)[property as keyof IFormField] as object),
+        };
+        set(propState, path, value);
+        this.fields.get(key)[
+          property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>
+        ] = propState as never;
+        return;
+      }
+      this.fields.get(key)[
+        property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>
+      ] = value as never;
+      return;
+    };
+
+    this.subscribedTemplates.map(
+      ({
+        destinationKey,
+        destinationPath,
+        destinationProperty,
+        originKey,
+        originPath,
+        originProperty,
+      }) => {
+        if (originKey === key) {
+          const destinationValue = getValue({
+            key: destinationKey,
+            property: destinationProperty,
+            path: destinationPath,
+          });
+          const originValue = getValue({
+            key: originKey,
+            property: originProperty,
+            path: originPath,
+          });
+          if (destinationValue !== originValue) {
+            setValue.bind(this)({
+              key: destinationKey,
+              property: destinationProperty,
+              path: destinationPath,
+              value: originValue,
+            });
           }
-          this.fields.get(el.destination)[
-            el.destinationProperty as keyof Omit<IFormField, 'stateValue'>
-          ] = originValue as never;
-          return;
         }
       }
-    });
+    );
   }
 
   private static checkIndexes = (

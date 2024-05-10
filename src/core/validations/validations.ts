@@ -37,7 +37,9 @@ const validations: Record<
   value: (value, validations) =>
     validations.value && value !== validations.value,
   notEmpty: (value, validations) =>
-    validations.notEmpty && !value.trim().length,
+    validations.notEmpty && !(value as string).trim().length,
+  greaterThan: () => true,
+  isNumber: () => true,
 };
 
 export { validations };

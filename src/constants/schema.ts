@@ -84,8 +84,13 @@ const schema: TSchema = {
         input: {
           method: 'GET',
           url: 'https://api.chucknorris.io/jokes/random',
-          valuePath: 'value',
+          // url: "https://google.com",
+          headers: {
+            'access-control-allow-origin': '*',
+          },
+          resultPath: 'value',
         },
+        fallbackValue: '',
       },
       errorMessages: {
         max: 'max value reached',

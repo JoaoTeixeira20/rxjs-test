@@ -1,3 +1,5 @@
+import { OutgoingHttpHeaders } from 'http2';
+
 type TComponents = 'input' | 'div' | 'libinput' | 'dropdown' | 'datepicker';
 
 type TProps = {
@@ -55,7 +57,8 @@ type TResetValues = TVisibility & { resettedFields: string[] | string };
 type TApi = {
   method: 'GET' | 'POST';
   url: string;
-  valuePath: string;
+  headers?: OutgoingHttpHeaders;
+  resultPath?: string;
 };
 
 type TSchema = {
@@ -68,7 +71,9 @@ type TSchema = {
   >;
   resetValues?: Partial<Record<keyof HTMLElementEventMap, TResetValues[]>>;
   errorMessages?: Partial<Record<keyof TValidations, string>>;
-  api?: Partial<Record<keyof HTMLElementEventMap, TApi>>;
+  api?: Partial<
+    Record<keyof HTMLElementEventMap, TApi> & { fallbackValue?: unknown }
+  >;
   formatters?: TFormatters[];
   children?: TSchema[];
 };

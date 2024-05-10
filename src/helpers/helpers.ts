@@ -1,7 +1,21 @@
-function makeRequest(method: string, url: string) {
+import { OutgoingHttpHeaders } from 'http2';
+
+function makeRequest(
+  method: string,
+  url: string,
+  headers?: OutgoingHttpHeaders
+) {
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
+    if (headers) {
+      Object.keys(headers).forEach((header) => {
+        xhr.setRequestHeader(
+          header,
+          headers[header as keyof OutgoingHttpHeaders] as string
+        );
+      });
+    }
     xhr.onload = function () {
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(xhr.responseText);
@@ -20,18 +34,18 @@ function traverseObject(
   obj: any,
   path?: string
 ): {
-  origin: string;
+  originKey: string;
   originProperty: string;
   originPath: string[];
-  destination: string;
+  destinationKey: string;
   destinationProperty: string;
   destinationPath: string[];
 }[] {
   const result: {
-    origin: string;
+    originKey: string;
     originProperty: string;
     originPath: string[];
-    destination: string;
+    destinationKey: string;
     destinationProperty: string;
     destinationPath: string[];
   }[] = [];
@@ -54,10 +68,10 @@ function traverseObject(
                 path ? `${path}.` : ``
               }${key}`.split('.');
               result.push({
-                origin: extractedPath[0],
+                originKey: extractedPath[0],
                 originProperty: extractedPath[1],
                 originPath: extractedPath.slice(2),
-                destination: extractedOriginPath[0],
+                destinationKey: extractedOriginPath[0],
                 destinationProperty: extractedOriginPath[1],
                 destinationPath: extractedOriginPath.slice(2),
               });
@@ -73,10 +87,10 @@ function traverseObject(
           const extractedPath = value.replace(/\$|{|}/g, '').split('.');
           const destinationPath = `${path ? `${path}.` : ``}${key}`.split('.');
           result.push({
-            origin: extractedPath[0],
+            originKey: extractedPath[0],
             originProperty: extractedPath[1],
             originPath: extractedPath.slice(2),
-            destination: destinationPath[0],
+            destinationKey: destinationPath[0],
             destinationProperty: destinationPath[1],
             destinationPath: destinationPath.slice(2),
           });

@@ -32,12 +32,12 @@ const validations: Record<
   includes,
   repeated,
   required: (value, validations) =>
-    validations.required &&
-    (!value || (typeof value === 'string' && value.length === 0)),
+    !!(validations.required &&
+    (!value || (typeof value === 'string' && value.length === 0))),
   value: (value, validations) =>
-    validations.value && value !== validations.value,
+    !!(validations.value && value !== validations.value),
   notEmpty: (value, validations) =>
-    validations.notEmpty && !(value as string).trim().length,
+    !!(validations.notEmpty && !(value as string).trim().length),
   greaterThan: () => true,
   isNumber: () => true,
 };

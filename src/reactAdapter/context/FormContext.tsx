@@ -18,7 +18,7 @@ type TFormContext = {
   mappers: TMapper[];
   printValues: () => void;
   printInstance: () => void;
-  getFieldInstance: (index: string) => FormField;
+  getFieldInstance: (index: string) => FormField | undefined;
 };
 
 type TFormContextProvider = {
@@ -53,8 +53,11 @@ const FormContextProvider = ({
     console.log(formInstance);
   };
 
-  const getFieldInstance = (index: string): FormField =>
-    formInstance.current.fields.get(index);
+  const getFieldInstance = (index: string): FormField | undefined => {
+    if (formInstance.current.fields.has(index))
+      return formInstance.current.fields.get(index);
+    console.warn(`failed to getFieldInstance on ${index}`);
+  };
 
   const contextValue = {
     formInstance: formInstance.current,

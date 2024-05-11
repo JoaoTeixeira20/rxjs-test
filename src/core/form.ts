@@ -12,8 +12,8 @@ class FormCore {
   schema: ISchema;
   fields: Map<string, IFormField>;
   initialValues?: Record<string, unknown>;
-  templateSubject$?: Subject<{ key: string }>;
-  subscribedTemplates?: TSubscribedTemplates[];
+  templateSubject$: Subject<{ key: string }>;
+  subscribedTemplates: TSubscribedTemplates[];
   constructor({
     schema,
     initialValues,
@@ -77,10 +77,11 @@ class FormCore {
       key: string;
       property: string;
       path: string[];
-    }) => {
+    }): unknown | undefined => {
+      if(!this.fields.has(key)) return console.warn(`failed to get value from ${key}`)
       return path.length > 0
-        ? get(this.fields.get(key)[property as keyof IFormField], path)
-        : this.fields.get(key)[property as keyof IFormField];
+        ? get(this.fields.get(key)![property as keyof IFormField], path)
+        : this.fields.get(key)![property as keyof IFormField];
     };
 
     const setValue = ({
@@ -94,19 +95,23 @@ class FormCore {
       path: string[];
       value: unknown;
     }) => {
+      const field = this.fields.get(key);
+      if (!field) {
+        console.warn(`failed to update field ${key}`);
+        return;
+      }
       if (path.length > 0) {
         const propState = {
-          ...(this.fields.get(key)[property as keyof IFormField] as object),
+          ...(field[property as keyof IFormField] as object),
         };
         set(propState, path, value);
-        this.fields.get(key)[
+        field[
           property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>
         ] = propState as never;
         return;
       }
-      this.fields.get(key)[
-        property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>
-      ] = value as never;
+      field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
+        value as never;
       return;
     };
 
@@ -170,10 +175,22 @@ class FormCore {
 
           if (Array.isArray(structElement.fields)) {
             structElement.fields.map((fieldKey) => {
-              this.fields.get(fieldKey).visibility = error;
+              if (this.fields.has(fieldKey)) {
+                this.fields.get(fieldKey)!.visibility = error;
+              } else {
+                console.warn(
+                  `failed to update visibility onto field ${fieldKey}`
+                );
+              }
             });
           } else if (structElement.fields) {
-            this.fields.get(structElement.fields).visibility = error;
+            if (this.fields.has(structElement.fields)) {
+              this.fields.get(structElement.fields)!.visibility = error;
+            } else {
+              console.warn(
+                `failed to update visibility onto field ${structElement.fields}`
+              );
+            }
           }
         }
       );
@@ -199,14 +216,24 @@ class FormCore {
                 )
                   ? structElement.resettedFields[index]
                   : structElement.resettedFields;
-                this.fields
-                  .get(fieldKey)
-                  .emitValue({ value: resettedValue, event });
+                if (this.fields.has(fieldKey)) {
+                  this.fields
+                    .get(fieldKey)!
+                    .emitValue({ value: resettedValue, event });
+                } else {
+                  console.warn(`failed to reset value onto field ${fieldKey}`);
+                }
               });
             } else if (structElement.fields) {
-              this.fields
-                .get(structElement.fields)
-                .emitValue({ value: structElement.resettedFields, event });
+              if (this.fields.has(structElement.fields)) {
+                this.fields
+                  .get(structElement.fields)!
+                  .emitValue({ value: structElement.resettedFields, event });
+              } else {
+                console.warn(
+                  `failed to reset value onto field ${structElement.fields}`
+                );
+              }
             }
           }
         }

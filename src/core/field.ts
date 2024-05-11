@@ -29,15 +29,15 @@ import { IState } from '@/interfaces/state';
 class FormField {
   name: string;
   component: string;
-  path: string;
+  path?: string;
   children: string[];
   // config properties
-  validations: TValidations;
-  visibilityConditions: TVisibilityContitions;
-  resetValues: TResetValues;
-  errorMessages: TErrorMessages;
-  api: TApi;
-  formatters: TFormatters[];
+  validations?: TValidations;
+  visibilityConditions?: TVisibilityContitions;
+  resetValues?: TResetValues;
+  errorMessages?: TErrorMessages;
+  api?: TApi;
+  formatters?: TFormatters[];
   // variable properties
   _props: Record<string, unknown>;
   _value: unknown;
@@ -70,7 +70,7 @@ class FormField {
     templateSubject$,
   }: {
     schemaComponent: ISchema;
-    path: string;
+    path?: string;
     children: string[];
     validateVisibility: (event: keyof HTMLElementEventMap, key: string) => void;
     resetValue: (event: keyof HTMLElementEventMap, key: string) => void;
@@ -124,7 +124,12 @@ class FormField {
   }
 
   set value(value: unknown) {
-    if (typeof value === 'undefined' || isEqual(value, this.value)) return;
+    if (
+      typeof value === 'undefined' ||
+      value === null ||
+      isEqual(value, this.value)
+    )
+      return;
     if (
       typeof value === 'object' &&
       '_value' in value &&
@@ -233,7 +238,7 @@ class FormField {
     Object.keys(structValidations).map(
       (validationKey: keyof TValidationMethods) => {
         const error = validations[validationKey](this.value, structValidations);
-        if (error) {
+        if (error && this.errorMessages) {
           this.errors = {
             ...this.errors,
             [validationKey]: this.errorMessages[validationKey],
@@ -274,12 +279,12 @@ class FormField {
         apiRequest.headers
       );
       const apiResponseData = JSON.parse(String(responseData));
-      const response = get(apiResponseData, apiRequest.resultPath);
+      const response = get(apiResponseData, apiRequest.resultPath || '');
       this.apiResponseData = { response };
     } catch (e) {
       this.apiResponseData = {
         response:
-          typeof this.api.fallbackValue !== 'undefined'
+          typeof this.api?.fallbackValue !== 'undefined'
             ? this.api.fallbackValue
             : 'error',
       };

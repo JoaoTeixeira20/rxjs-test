@@ -11,7 +11,12 @@ const App = () => (
       <Form
         schema={schema}
         mappers={mappers}
-        initialValues={{ name: 'foo', bal: 'bal', baz: 'baz' }}
+        initialValues={{
+          name: 'foo',
+          bal: 'bal',
+          baz: 'baz',
+          provinces: 'ALBACETE',
+        }}
       />
     </BolttechThemeProvider>
   </>

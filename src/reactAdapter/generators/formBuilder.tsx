@@ -16,19 +16,19 @@ const BuildReactTreeFromSchema = (schema: ISchema): ReactElement => {
     ? children.map((el: ISchema) => BuildReactTreeFromSchema(el))
     : null;
 
-  const { component: Component, valueChangeEvent } = mappers.find(
-    (el) => el.componentName === component
-  );
+  const mapper = mappers.find((el) => el.componentName === component);
 
-  return (
+  return mapper ? (
     <FieldWrapper
       key={name}
       index={name}
-      Component={Component}
-      valueChangeEvent={valueChangeEvent}
+      Component={mapper.component}
+      valueChangeEvent={mapper.valueChangeEvent}
     >
       {childElements}
     </FieldWrapper>
+  ) : (
+    <div>{`error rendering field ${name} :(`}</div>
   );
 };
 
@@ -44,33 +44,40 @@ const BuildTree = (
       }
     }
   }
-  const children = fields.get(prevKey).children;
+
+  const children =
+    prevKey && fields.has(prevKey) && fields.get(prevKey)!.children;
   if (children && children.length > 0) {
-    const { component: Component, valueChangeEvent } = mappers.find(
-      (el) => el.componentName === fields.get(prevKey).component
+    const mapper = mappers.find(
+      (el) => el.componentName === fields.get(prevKey)!.component
     );
 
-    return (
+    return mapper ? (
       <FieldWrapper
-        Component={Component}
+        Component={mapper.component}
         index={prevKey}
-        valueChangeEvent={valueChangeEvent}
+        valueChangeEvent={mapper.valueChangeEvent}
         key={prevKey}
       >
         {children.map((key) => BuildTree(fields, mappers, key))}
       </FieldWrapper>
+    ) : (
+      <div>{`error rendering field ${prevKey} :(`}</div>
     );
   }
-  const { component: Component, valueChangeEvent } = mappers.find(
-    (el) => el.componentName === fields.get(prevKey).component
-  );
-  return (
+  const mapper =
+    prevKey &&
+    mappers.find((el) => el.componentName === fields.get(prevKey)!.component);
+    
+  return mapper ? (
     <FieldWrapper
-      Component={Component}
+      Component={mapper.component}
       index={prevKey}
-      valueChangeEvent={valueChangeEvent}
+      valueChangeEvent={mapper.valueChangeEvent}
       key={prevKey}
     />
+  ) : (
+    <div>{`error rendering field ${prevKey} :(`}</div>
   );
 };
 

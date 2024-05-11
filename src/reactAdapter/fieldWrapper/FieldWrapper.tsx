@@ -19,18 +19,13 @@ const FieldWrapper = ({
 }: PropsWithChildren<{
   index: string;
   Component: ElementType;
-  valueChangeEvent: (event: unknown) => unknown;
+  valueChangeEvent?: (event: unknown) => unknown;
 }>): ReactElement => {
   const { getFieldInstance } = useFormContext();
   const fieldInstance = useMemo(() => getFieldInstance(index), [index]);
+  if(!fieldInstance) return <div>{`field ${index} not found :(`}</div>
   const [value, setValue] = useState(fieldInstance.value);
-  const [{ errors, visibility, apiResponse, props }, setState] =
-    useState<IState>({
-      errors: [],
-      visibility: fieldInstance.visibility,
-      apiResponse: fieldInstance.apiResponseData?.response,
-      props: fieldInstance.props,
-    });
+  const [state, setState] = useState<Partial<IState>>({ visibility: true });
 
   useEffect(() => {
     fieldInstance.mountField();
@@ -78,21 +73,21 @@ const FieldWrapper = ({
   // }, [value]);
 
   return (
-    visibility && (
+    state?.visibility ? (
       <>
         <b style={{ padding: '0px', margin: '0px' }}>{index}</b>
-        <Component {...props} onChange={handleChange} value={value}>
+        <Component {...state?.props} onChange={handleChange} value={value}>
           {children && children}
         </Component>
-        {errors.length > 0 &&
+        {/* {errors.length > 0 &&
           errors.map((error) => (
             <div key={error} style={{ color: 'red' }}>
               {error}
             </div>
           ))}
-        {apiResponse && <div>{JSON.stringify(apiResponse)}</div>}
+        {apiResponse && <div>{JSON.stringify(apiResponse)}</div>} */}
       </>
-    )
+    ) : <></>
   );
 };
 

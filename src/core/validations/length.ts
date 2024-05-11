@@ -6,7 +6,7 @@ export default (value: unknown, validations: TValidationMethods): boolean => {
   let targetValue = value as string;
   // We want length even if it is a numeric
   if (typeof targetValue !== 'string') {
-    targetValue = value?.toString();
+    targetValue = value?.toString() || targetValue;
   }
 
   const condition: Record<string, boolean> = {

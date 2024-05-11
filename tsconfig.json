@@ -5,7 +5,7 @@
     "noImplicitAny": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,

@@ -15,14 +15,14 @@ const schema: ISchema = {
         min: new Date(),
         max: new Date(new Date().setDate(new Date().getDate() + 120)),
       },
-      api: {
-        input: {
-          method: 'GET',
-          url: 'http://localhost:3023/plan/address/provinces',
-          resultPath: 'result',
-        },
-        fallbackValue: [],
-      }
+      // api: {
+      //   input: {
+      //     method: 'GET',
+      //     url: 'http://localhost:3023/plan/address/provinces',
+      //     resultPath: 'result',
+      //   },
+      //   fallbackValue: [],
+      // }
     },
     {
       component: 'dropdown',
@@ -62,6 +62,7 @@ const schema: ISchema = {
       props: {
         label: '${name.apiResponseData.response}',
         variant: 'border',
+        // errorMessage: '${name.errorsString}'
       },
       validations: {
         input: {

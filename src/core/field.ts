@@ -123,6 +123,10 @@ class FormField {
     return this._value;
   }
 
+  get errorsString() {
+    return this._errorsString;
+  }
+
   set value(value: unknown) {
     if (
       typeof value === 'undefined' ||
@@ -164,6 +168,7 @@ class FormField {
   set errors(errors: TErrorList) {
     if (typeof errors === 'undefined' || isEqual(errors, this.errors)) return;
     this._errors = errors;
+    this._errorsString = Object.values(this.errors).join(', ');
     this.errorSubject$.next(Object.values(this.errors));
     this.templateSubject$.next({ key: this.name });
   }
@@ -250,11 +255,11 @@ class FormField {
         }
         this.props = {
           ...this.props,
-          errorMessages: Object.values(this.errors || []).join(),
+          errorMessage: this.errorsString,
         };
         this.propsSubject$.next({
           ...this._props,
-          errorMessage: Object.values(this._errors || []).join(),
+          errorMessage: this.errorsString,
         });
       }
     );

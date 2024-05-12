@@ -78,7 +78,8 @@ class FormCore {
       property: string;
       path: string[];
     }): unknown | undefined => {
-      if(!this.fields.has(key)) return console.warn(`failed to get value from ${key}`)
+      if (!this.fields.has(key))
+        return console.warn(`failed to get value from ${key}`);
       return path.length > 0
         ? get(this.fields.get(key)![property as keyof IFormField], path)
         : this.fields.get(key)![property as keyof IFormField];
@@ -115,7 +116,7 @@ class FormCore {
       return;
     };
 
-    this.subscribedTemplates.map(
+    this.subscribedTemplates.forEach(
       ({
         destinationKey,
         destinationPath,
@@ -165,8 +166,8 @@ class FormCore {
     const field = this.fields.get(key);
     const structVisibility = field?.visibilityConditions?.[event];
     if (!structVisibility) return;
-    structVisibility.map((structElement) => {
-      Object.keys(structElement.validations).map(
+    structVisibility.forEach((structElement) => {
+      Object.keys(structElement.validations).forEach(
         (validationKey: keyof TValidationMethods) => {
           const error = validations[validationKey](
             field.value,
@@ -174,23 +175,19 @@ class FormCore {
           );
 
           if (Array.isArray(structElement.fields)) {
-            structElement.fields.map((fieldKey) => {
-              if (this.fields.has(fieldKey)) {
-                this.fields.get(fieldKey)!.visibility = error;
-              } else {
+            structElement.fields.forEach((fieldKey) => {
+              if (!this.fields.has(fieldKey))
                 console.warn(
                   `failed to update visibility onto field ${fieldKey}`
                 );
-              }
+              else this.fields.get(fieldKey)!.visibility = error;
             });
           } else if (structElement.fields) {
-            if (this.fields.has(structElement.fields)) {
-              this.fields.get(structElement.fields)!.visibility = error;
-            } else {
+            if (!this.fields.has(structElement.fields))
               console.warn(
                 `failed to update visibility onto field ${structElement.fields}`
               );
-            }
+            else this.fields.get(structElement.fields)!.visibility = error;
           }
         }
       );
@@ -201,8 +198,8 @@ class FormCore {
     const field = this.fields.get(key);
     const structResetValue = field?.resetValues?.[event];
     if (!structResetValue) return;
-    structResetValue.map((structElement) => {
-      Object.keys(structElement.validations).map(
+    structResetValue.forEach((structElement) => {
+      Object.keys(structElement.validations).forEach(
         (validationKey: keyof TValidationMethods) => {
           const error = validations[validationKey](
             field.value,
@@ -216,24 +213,22 @@ class FormCore {
                 )
                   ? structElement.resettedFields[index]
                   : structElement.resettedFields;
-                if (this.fields.has(fieldKey)) {
+                if (!this.fields.has(fieldKey))
+                  console.warn(`failed to reset value onto field ${fieldKey}`);
+                else
                   this.fields
                     .get(fieldKey)!
                     .emitValue({ value: resettedValue, event });
-                } else {
-                  console.warn(`failed to reset value onto field ${fieldKey}`);
-                }
               });
             } else if (structElement.fields) {
-              if (this.fields.has(structElement.fields)) {
-                this.fields
-                  .get(structElement.fields)!
-                  .emitValue({ value: structElement.resettedFields, event });
-              } else {
+              if (!this.fields.has(structElement.fields))
                 console.warn(
                   `failed to reset value onto field ${structElement.fields}`
                 );
-              }
+              else
+                this.fields
+                  .get(structElement.fields)!
+                  .emitValue({ value: structElement.resettedFields, event });
             }
           }
         }

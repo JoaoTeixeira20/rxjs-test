@@ -18,7 +18,7 @@ interface ISchema {
   resetValues?: TResetValues;
   errorMessages?: TErrorMessages;
   api?: TApi;
-  formatters?: TFormatters[];
+  formatters?: TFormatters;
   children?: ISchema[];
 }
 

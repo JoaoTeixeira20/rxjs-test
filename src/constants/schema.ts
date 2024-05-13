@@ -109,14 +109,14 @@ const schema: ISchema = {
           resultPath: 'value',
           fallbackValue: '',
         },
-        events: ['input']
+        events: ['input'],
       },
       errorMessages: {
         max: 'max value reached',
         min: 'min value reached',
         required: 'field required',
       },
-      formatters: ['capitalize', 'dotEvery3chars'],
+      formatters: { capitalize: true, dotEvery3chars: true },
     },
     {
       component: 'div',

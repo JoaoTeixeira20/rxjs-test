@@ -23,7 +23,7 @@ const FieldWrapper = ({
 }>): ReactElement => {
   const { getFieldInstance } = useFormContext();
   const fieldInstance = useMemo(() => getFieldInstance(index), [index]);
-  if(!fieldInstance) return <div>{`field ${index} not found :(`}</div>
+  if (!fieldInstance) return <div>{`field ${index} not found :(`}</div>;
   const [value, setValue] = useState(fieldInstance.value);
   const [state, setState] = useState<Partial<IState>>({ visibility: true });
 
@@ -66,28 +66,37 @@ const FieldWrapper = ({
     fieldInstance.emitValue({ value, event: 'input' });
   }, []);
 
+  const handleEvent = useCallback((event: keyof HTMLElementEventMap) => {
+    fieldInstance.emitEvents({ event });
+  }, []);
+
   // useEffect(() => {
   //   console.log(
   //     `AAAAAAAAAAAAAAAAAAAAAAAA: value: ${value} key ${fieldInstance.name}`
   //   );
   // }, [value]);
 
-  return (
-    state?.visibility ? (
-      <>
-        <b style={{ padding: '0px', margin: '0px' }}>{index}</b>
-        <Component {...state?.props} onChange={handleChange} value={value}>
-          {children && children}
-        </Component>
-        {/* {errors.length > 0 &&
+  return state?.visibility ? (
+    <>
+      <b style={{ padding: '0px', margin: '0px' }}>{index}</b>
+      <Component
+        {...state?.props}
+        onChange={handleChange}
+        onBlur={() => handleEvent('blur')}
+        value={value}
+      >
+        {children && children}
+      </Component>
+      {/* {errors.length > 0 &&
           errors.map((error) => (
             <div key={error} style={{ color: 'red' }}>
               {error}
             </div>
           ))}
         {apiResponse && <div>{JSON.stringify(apiResponse)}</div>} */}
-      </>
-    ) : <></>
+    </>
+  ) : (
+    <></>
   );
 };
 

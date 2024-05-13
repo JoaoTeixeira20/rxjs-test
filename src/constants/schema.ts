@@ -186,6 +186,16 @@ const schema: ISchema = {
       props: {
         label: '${name.value}',
       },
+      validations: {
+        blur: {
+          max: 18,
+          min: 16,
+        },
+      },
+      errorMessages: {
+        max: 'max reached',
+        min: 'min reached',
+      },
     },
   ],
 };

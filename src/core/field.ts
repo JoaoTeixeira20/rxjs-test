@@ -46,6 +46,7 @@ class FormField {
   _errors: TErrorList;
   _errorsString: string;
   _apiResponseData: { response: unknown };
+  _valid: boolean;
   // subjects/observables
   propsSubject$: Subject<Record<string, unknown>>;
   errorSubject$: Subject<string[]>;
@@ -96,6 +97,7 @@ class FormField {
     this._visibility = true;
     this._apiResponseData = { response: this.api?.fallbackValue };
     this._errorsString = '';
+    this._valid = false;
     this.valueSubject$ = new Subject();
     this.errorSubject$ = new Subject();
     this.visibilitySubject$ = new Subject();
@@ -230,41 +232,59 @@ class FormField {
     event: keyof HTMLElementEventMap;
   }): void {
     this.value = value;
-    this.validations?.[event] && this.validateField(event);
+    this.emitEvents({ event });
+  }
+
+  emitEvents({ event }: { event: keyof HTMLElementEventMap }): void {
+    this.validations?.[event] && this.setFieldValidity({ event });
     this.visibilityConditions?.[event] &&
       this.validateVisibility(event, this.name);
     this.resetValues?.[event] && this.resetValue(event, this.name);
     this.api?.[event] && this.debouncedRequest(event);
   }
 
-  validateField(event: keyof HTMLElementEventMap) {
-    const structValidations = this.validations?.[event];
-    if (!structValidations) return;
-    Object.keys(structValidations).map(
-      (validationKey: keyof TValidationMethods) => {
-        const error = validations[validationKey](this.value, structValidations);
-        if (error && this.errorMessages) {
-          this.errors = {
-            ...this.errors,
-            [validationKey]: this.errorMessages[validationKey],
-          };
-        } else {
-          const errors = { ...this.errors };
-          if (errors) delete errors[validationKey];
-          this.errors = errors;
-        }
-        this.props = {
-          ...this.props,
-          errorMessage: this.errorsString,
-        };
-        this.propsSubject$.next({
-          ...this._props,
-          errorMessage: this.errorsString,
-        });
+  setFieldValidity({ event }: { event: keyof HTMLElementEventMap }): void {
+    if (!this.validations) {
+      this._valid = true;
+      return;
+    }
+    let valid = true;
+    let errors = { ...this.errors };
+    Object.keys(this.validations).forEach(
+      (schemaEvent: keyof HTMLElementEventMap) => {
+        const schemaValidations = this.validations?.[schemaEvent];
+        schemaValidations &&
+          Object.keys(schemaValidations).forEach(
+            (validationKey: keyof TValidationMethods) => {
+              const error = validations[validationKey](
+                this.value,
+                this.validations?.[schemaEvent] as TValidationMethods
+              );
+              // setting valid flag
+              valid = !error && valid;
+              // setting error messages
+              if (error && this.errorMessages && event === schemaEvent) {
+                errors[validationKey] = this.errorMessages[validationKey];
+              } else if (event === schemaEvent) {
+                delete errors[validationKey];
+              }
+            }
+          );
       }
     );
+    this._valid = valid;
+    this.errors = errors;
+    // remove later
+    this.props = {
+      ...this.props,
+      errorMessage: this.errorsString,
+    };
+    this.propsSubject$.next({
+      ...this._props,
+      errorMessage: this.errorsString,
+    });
   }
-
+  
   formatValue(value: unknown): unknown {
     if (this.formatters) {
       return this.formatters.reduce((acc, curr) => {

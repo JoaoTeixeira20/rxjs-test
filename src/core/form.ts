@@ -58,11 +58,9 @@ class FormCore {
           errorMessages,
           api,
         };
-        const result = traverseObject(template, key);
-        if (result.length > 0) {
-          // subscribedProps.push(result);
-          this.subscribedTemplates = [...this.subscribedTemplates, ...result];
-        }
+        traverseObject(template, key).forEach((element) =>
+          this.subscribedTemplates.push(element)
+        );
       }
     );
     // console.log(subscribedProps);

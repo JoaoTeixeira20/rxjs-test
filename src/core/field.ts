@@ -263,10 +263,12 @@ class FormField {
               // setting valid flag
               valid = !error && valid;
               // setting error messages
-              if (error && this.errorMessages && event === schemaEvent) {
-                errors[validationKey] = this.errorMessages[validationKey];
-              } else if (event === schemaEvent) {
-                delete errors[validationKey];
+              if (event === schemaEvent) {
+                if (error && this.errorMessages?.[validationKey]) {
+                  errors[validationKey] = this.errorMessages[validationKey];
+                } else {
+                  delete errors[validationKey];
+                }
               }
             }
           );
@@ -284,7 +286,7 @@ class FormField {
       errorMessage: this.errorsString,
     });
   }
-  
+
   formatValue(value: unknown): unknown {
     if (this.formatters) {
       return this.formatters.reduce((acc, curr) => {

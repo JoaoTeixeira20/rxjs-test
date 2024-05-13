@@ -16,20 +16,21 @@ const schema: ISchema = {
         max: new Date(new Date().setDate(new Date().getDate() + 120)),
       },
       // api: {
-      //   input: {
+      //   config: {
       //     method: 'GET',
       //     url: 'http://localhost:3023/plan/address/provinces',
       //     resultPath: 'result',
+      //     fallbackValue: [],
       //   },
-      //   fallbackValue: [],
-      // }
+      //   events: ['input']
+      // },
     },
     {
       component: 'dropdown',
       name: 'provinces',
-      props:{
+      props: {
         label: 'provinces',
-        optionList: '${datepickertest.apiResponseData.response}'
+        optionList: '${datepickertest.apiResponseData.response}',
       },
     },
     {
@@ -98,7 +99,7 @@ const schema: ISchema = {
         ],
       },
       api: {
-        input: {
+        config: {
           method: 'GET',
           url: 'https://api.chucknorris.io/jokes/random',
           // url: "https://google.com",
@@ -106,8 +107,9 @@ const schema: ISchema = {
             'access-control-allow-origin': '*',
           },
           resultPath: 'value',
+          fallbackValue: '',
         },
-        fallbackValue: '',
+        events: ['input']
       },
       errorMessages: {
         max: 'max value reached',

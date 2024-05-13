@@ -55,6 +55,7 @@ type TApiConfig = {
   url: string;
   headers?: OutgoingHttpHeaders;
   resultPath?: string;
+  fallbackValue?: unknown;
 };
 
 type TProps = Record<string, unknown>;
@@ -75,9 +76,7 @@ type TErrorMessages = Partial<Record<keyof TValidationMethods, string>>;
 
 type TErrorList = Partial<Record<keyof TValidationMethods, string>>;
 
-type TApi = Partial<
-  Record<keyof HTMLElementEventMap, TApiConfig> & { fallbackValue?: unknown }
->;
+type TApi = { config: TApiConfig; events: Partial<keyof HTMLElementEventMap>[] };
 
 export {
   TApi,

@@ -15,6 +15,7 @@ import { formatters } from './formatters/formatters';
 import isEqual from 'lodash/isEqual';
 import {
   TApi,
+  TApiConfig,
   TErrorList,
   TErrorMessages,
   TFormatters,
@@ -59,7 +60,7 @@ class FormField {
   // form state handlers
   validateVisibility: (event: keyof HTMLElementEventMap, key: string) => void;
   resetValue: (event: keyof HTMLElementEventMap, key: string) => void;
-  debouncedRequest: (event: keyof HTMLElementEventMap) => Promise<void>;
+  debouncedRequest: (config: TApiConfig) => Promise<void>;
 
   constructor({
     schemaComponent,
@@ -95,7 +96,7 @@ class FormField {
     this._props = schemaComponent.props;
     this._value = this.formatValue(initialValue || '');
     this._visibility = true;
-    this._apiResponseData = { response: this.api?.fallbackValue };
+    this._apiResponseData = { response: this.api?.config?.fallbackValue };
     this._errorsString = '';
     this._valid = false;
     this.valueSubject$ = new Subject();
@@ -240,7 +241,7 @@ class FormField {
     this.visibilityConditions?.[event] &&
       this.validateVisibility(event, this.name);
     this.resetValues?.[event] && this.resetValue(event, this.name);
-    this.api?.[event] && this.debouncedRequest(event);
+    this.api?.config && this.debouncedRequest(this.api?.config);
   }
 
   setFieldValidity({ event }: { event: keyof HTMLElementEventMap }): void {
@@ -296,23 +297,22 @@ class FormField {
     return value;
   }
 
-  async apiRequest(event: keyof HTMLElementEventMap) {
-    const apiRequest = this.api?.[event];
-    if (!apiRequest) return;
+  async apiRequest(config: TApiConfig) {
+    if (!config) return;
     try {
       const responseData = await makeRequest(
-        apiRequest.method,
-        apiRequest.url,
-        apiRequest.headers
+        config.method,
+        config.url,
+        config.headers
       );
       const apiResponseData = JSON.parse(String(responseData));
-      const response = get(apiResponseData, apiRequest.resultPath || '');
+      const response = get(apiResponseData, config.resultPath || '');
       this.apiResponseData = { response };
     } catch (e) {
       this.apiResponseData = {
         response:
-          typeof this.api?.fallbackValue !== 'undefined'
-            ? this.api.fallbackValue
+          typeof config?.fallbackValue !== 'undefined'
+            ? config.fallbackValue
             : 'error',
       };
     }

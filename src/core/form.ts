@@ -128,32 +128,31 @@ class FormCore {
       // console.log(splittedStringVal)
       return splittedStringVal.filter(Boolean).reduce((acc, curr) => {
         if (curr.match(/^\|\||&&|!$/)) {
-          // console.log('got as operator', curr)
           return `${acc}${curr}`;
         }
-        // console.log(`got curr as value el:${p1[curr]}, key:${curr}`)
         let value;
 
+        // check if element is in dot notation to get from field instances
         const element = curr.split('.');
-        const currValue = this.getValue({
-          key: element[0],
-          property: element[1],
-          path: element.slice(2),
-        });
-
-        console.log('log me:');
-        console.log(
-          JSON.stringify({
-            key: element[0],
-            property: element[1],
-            path: element.slice(2),
-          })
-        );
-        console.log(currValue);
-
+        const currElementContent =
+          element.length > 1
+            ? this.getValue({
+                key: element[0],
+                property: element[1],
+                path: element.slice(2),
+              })
+            : element;
+        let currValue;
+        // if any parsable content was passed to the conditions, parse them
+        // required to be able to apply conditions
+        try {
+          currValue = JSON.parse(currElementContent as string);
+        } catch (e) {
+          currValue = currElementContent;
+        }
         switch (typeof currValue) {
           case 'string':
-            value = `'${currValue}'`;
+            value = `\`${currValue}\``;
             break;
           case 'boolean':
           case 'undefined':
@@ -175,6 +174,7 @@ class FormCore {
 
     return result.map((el) => {
       try {
+        // console.log(el);
         return new Function(`return ${el}`)();
       } catch (e) {
         console.log(e);
@@ -189,6 +189,11 @@ class FormCore {
     return expression.replace(regex, () => values.shift());
   }
 
+  hasStringConcatenation(expression: string) {
+    const regex = /^\${[^${}]*}$/;
+    return !regex.test(expression);
+  }
+
   refreshTemplates({ key }: { key: string }) {
     this.subscribedTemplates.forEach(
       ({
@@ -199,8 +204,16 @@ class FormCore {
         originFieldKeys,
       }) => {
         if (originFieldKeys.includes(key)) {
-          const originValue = this.extractParams(originExpression);
-          const result = this.replaceExpression(originExpression, originValue);
+          const originExpressions = this.extractParams(originExpression);
+          let originValue;
+          if (this.hasStringConcatenation(originExpression)) {
+            originValue = this.replaceExpression(originExpression, [
+              ...originExpressions,
+            ]);
+          } else {
+            originValue = originExpressions?.[0];
+          }
+
           const destinationValue = this.getValue({
             key: destinationKey,
             property: destinationProperty,
@@ -211,27 +224,9 @@ class FormCore {
               key: destinationKey,
               property: destinationProperty,
               path: destinationPath,
-              value: result,
+              value: originValue,
             });
           }
-          // const destinationValue = getValue({
-          //   key: destinationKey,
-          //   property: destinationProperty,
-          //   path: destinationPath,
-          // });
-          // const originValue = getValue({
-          //   key: originKey,
-          //   property: originProperty,
-          //   path: originPath,
-          // });
-          // if (destinationValue !== originValue) {
-          //   setValue.bind(this)({
-          //     key: destinationKey,
-          //     property: destinationProperty,
-          //     path: destinationPath,
-          //     value: originValue,
-          //   });
-          // }
         }
       }
     );

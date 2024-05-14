@@ -20,7 +20,7 @@ const schema: ISchema = {
       //     method: 'GET',
       //     url: 'http://localhost:3023/plan/address/provinces',
       //     resultPath: 'result',
-      //     fallbackValue: [],
+      //     fallbackValue: '',
       //   },
       //   events: ['input']
       // },
@@ -30,7 +30,7 @@ const schema: ISchema = {
       name: 'provinces',
       props: {
         label: 'provinces',
-        // optionList: '${datepickertest.apiResponseData.response}',
+        optionList: '${datepickertest.apiResponseData.response||[]}',
       },
     },
     {

@@ -96,7 +96,7 @@ class FormField {
     this._props = schemaComponent.props;
     this._value = this.formatValue(initialValue || '');
     this._visibility = true;
-    this._apiResponseData = { response: this.api?.config?.fallbackValue };
+    this._apiResponseData = { response: this.api?.config?.fallbackValue || '' };
     this._errorsString = '';
     this._valid = false;
     this.valueSubject$ = new Subject();

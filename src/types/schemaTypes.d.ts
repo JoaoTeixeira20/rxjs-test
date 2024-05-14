@@ -1,6 +1,5 @@
 import { ICurrencyCode } from '@/helpers/currencyCode';
 import { OutgoingHttpHeaders } from 'http2';
-import { LanguageCode,  } from 'iso-639-1';
 
 type TComponents = 'input' | 'div' | 'libinput' | 'dropdown' | 'datepicker';
 

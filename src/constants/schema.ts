@@ -30,14 +30,14 @@ const schema: ISchema = {
       name: 'provinces',
       props: {
         label: 'provinces',
-        optionList: '${datepickertest.apiResponseData.response}',
+        // optionList: '${datepickertest.apiResponseData.response}',
       },
     },
     {
       component: 'dropdown',
       name: 'testdropdown',
       props: {
-        label: 'dropdown',
+        label: 'çup?',
         optionList: [
           {
             id: 'one',
@@ -61,7 +61,8 @@ const schema: ISchema = {
       component: 'libinput',
       name: 'name',
       props: {
-        label: '${name.apiResponseData.response}',
+        label:
+          '${name.apiResponseData.response||testdropdown.props.label} and ${name.apiResponseData.response||testdropdown.props.label}',
         variant: 'border',
         // errorMessage: '${name.errorsString}'
       },
@@ -109,7 +110,7 @@ const schema: ISchema = {
           resultPath: 'value',
           fallbackValue: '',
         },
-        events: ['input']
+        events: ['input'],
       },
       errorMessages: {
         max: 'max value reached',

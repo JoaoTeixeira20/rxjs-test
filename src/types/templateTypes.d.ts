@@ -1,7 +1,6 @@
 type TSubscribedTemplates = {
-  originKey: string;
-  originProperty: string;
-  originPath: string[];
+  originExpression: string;
+  originFieldKeys: string[];
   destinationKey: string;
   destinationProperty: string;
   destinationPath: string[];

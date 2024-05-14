@@ -31,6 +31,16 @@ function makeRequest(
   });
 }
 
+function extractFieldKeys(expression: string) {
+  const regex = /\${(.*?)}/g;
+  const extractedValues = [];
+  let match;
+  while ((match = regex.exec(expression)) !== null) {
+    extractedValues.push(match[1]);
+  }
+  return extractedValues.map((el) => el.split('.')[0]);
+}
+
 function traverseObject(obj: any, path?: string): TSubscribedTemplates[] {
   const result: TSubscribedTemplates[] = [];
   for (const key in obj) {
@@ -46,15 +56,14 @@ function traverseObject(obj: any, path?: string): TSubscribedTemplates[] {
               )
             );
           } else if (typeof item === 'string') {
-            if (String(item).startsWith('$')) {
-              const extractedPath = item.replace(/\$|{|}/g, '').split('.');
+            if (String(item).includes('$')) {
+              // const extractedPath = item.replace(/\$|{|}/g, '').split('.');
               const extractedOriginPath = `${
                 path ? `${path}.` : ``
               }${key}`.split('.');
               result.push({
-                originKey: extractedPath[0],
-                originProperty: extractedPath[1],
-                originPath: extractedPath.slice(2),
+                originExpression: item,
+                originFieldKeys: extractFieldKeys(item),
                 destinationKey: extractedOriginPath[0],
                 destinationProperty: extractedOriginPath[1],
                 destinationPath: extractedOriginPath.slice(2),
@@ -67,13 +76,12 @@ function traverseObject(obj: any, path?: string): TSubscribedTemplates[] {
           ...traverseObject(value, `${path ? `${path}.` : ``}${key}`)
         );
       } else if (typeof value === 'string') {
-        if (value.startsWith('$')) {
-          const extractedPath = value.replace(/\$|{|}/g, '').split('.');
+        if (value.includes('$')) {
+          // const extractedPath = value.replace(/\$|{|}/g, '').split('.');
           const destinationPath = `${path ? `${path}.` : ``}${key}`.split('.');
           result.push({
-            originKey: extractedPath[0],
-            originProperty: extractedPath[1],
-            originPath: extractedPath.slice(2),
+            originExpression: value,
+            originFieldKeys: extractFieldKeys(value),
             destinationKey: destinationPath[0],
             destinationProperty: destinationPath[1],
             destinationPath: destinationPath.slice(2),
@@ -86,4 +94,4 @@ function traverseObject(obj: any, path?: string): TSubscribedTemplates[] {
   return result;
 }
 
-export { makeRequest, traverseObject };
+export { makeRequest, traverseObject, extractFieldKeys };

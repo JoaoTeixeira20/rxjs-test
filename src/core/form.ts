@@ -7,6 +7,7 @@ import set from 'lodash/set';
 import { ISchema } from '@/interfaces/schema';
 import { TValidationMethods } from '@/types/schemaTypes';
 import { TSubscribedTemplates } from '@/types/templateTypes';
+import { isEqual } from 'lodash';
 
 class FormCore {
   schema: ISchema;
@@ -66,82 +67,171 @@ class FormCore {
     // console.log(subscribedProps);
   }
 
-  refreshTemplates({ key }: { key: string }) {
-    const getValue = ({
-      key,
-      property,
-      path,
-    }: {
-      key: string;
-      property: string;
-      path: string[];
-    }): unknown | undefined => {
-      if (!this.fields.has(key))
-        return console.warn(`failed to get value from ${key}`);
-      return path.length > 0
-        ? get(this.fields.get(key)![property as keyof IFormField], path)
-        : this.fields.get(key)![property as keyof IFormField];
-    };
+  getValue({
+    key,
+    property,
+    path,
+  }: {
+    key: string;
+    property: string;
+    path: string[];
+  }): unknown | undefined {
+    if (!this.fields.has(key))
+      return console.warn(`failed to get value from ${key}`);
+    return path.length > 0
+      ? get(this.fields.get(key)![property as keyof IFormField], path)
+      : this.fields.get(key)![property as keyof IFormField];
+  }
 
-    const setValue = ({
-      key,
-      property,
-      path,
-      value,
-    }: {
-      key: string;
-      property: string;
-      path: string[];
-      value: unknown;
-    }) => {
-      const field = this.fields.get(key);
-      if (!field) {
-        console.warn(`failed to update field ${key}`);
-        return;
-      }
-      if (path.length > 0) {
-        const propState = {
-          ...(field[property as keyof IFormField] as object),
-        };
-        set(propState, path, value);
-        field[
-          property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>
-        ] = propState as never;
-        return;
-      }
-      field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
-        value as never;
+  setValue({
+    key,
+    property,
+    path,
+    value,
+  }: {
+    key: string;
+    property: string;
+    path: string[];
+    value: unknown;
+  }) {
+    const field = this.fields.get(key);
+    if (!field) {
+      console.warn(`failed to update field ${key}`);
       return;
-    };
+    }
+    if (path.length > 0) {
+      const propState = {
+        ...(field[property as keyof IFormField] as object),
+      };
+      set(propState, path, value);
+      field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
+        propState as never;
+      return;
+    }
+    field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
+      value as never;
+    return;
+  }
 
+  extractParams(expression: string) {
+    const regex = /\${(.*?)}/g;
+    const extractedValues = [];
+    let match;
+    while ((match = regex.exec(expression)) !== null) {
+      extractedValues.push(match[1]);
+    }
+
+    const operatorRegex = /\s*(\|\||&&|!)\s*/g;
+    const splittedString = extractedValues.map((el) => el.split(operatorRegex));
+
+    const result = splittedString.map((splittedStringVal) => {
+      // console.log(splittedStringVal)
+      return splittedStringVal.filter(Boolean).reduce((acc, curr) => {
+        if (curr.match(/^\|\||&&|!$/)) {
+          // console.log('got as operator', curr)
+          return `${acc}${curr}`;
+        }
+        // console.log(`got curr as value el:${p1[curr]}, key:${curr}`)
+        let value;
+
+        const element = curr.split('.');
+        const currValue = this.getValue({
+          key: element[0],
+          property: element[1],
+          path: element.slice(2),
+        });
+
+        console.log('log me:');
+        console.log(
+          JSON.stringify({
+            key: element[0],
+            property: element[1],
+            path: element.slice(2),
+          })
+        );
+        console.log(currValue);
+
+        switch (typeof currValue) {
+          case 'string':
+            value = `'${currValue}'`;
+            break;
+          case 'boolean':
+          case 'undefined':
+          case 'number':
+            value = currValue;
+            break;
+          case 'object':
+            if (currValue === null) {
+              value = null;
+            }
+            value = JSON.stringify(currValue);
+            break;
+          default:
+            value = currValue;
+        }
+        return `${acc}${value}`;
+      }, '');
+    });
+
+    return result.map((el) => {
+      try {
+        return new Function(`return ${el}`)();
+      } catch (e) {
+        console.log(e);
+        return 'lil error here.. :(';
+      }
+    });
+  }
+
+  replaceExpression(expression: string, values: string[]) {
+    const regex = /\${(.*?)}/g;
+    // @ts-ignore
+    return expression.replace(regex, () => values.shift());
+  }
+
+  refreshTemplates({ key }: { key: string }) {
     this.subscribedTemplates.forEach(
       ({
         destinationKey,
         destinationPath,
         destinationProperty,
-        originKey,
-        originPath,
-        originProperty,
+        originExpression,
+        originFieldKeys,
       }) => {
-        if (originKey === key) {
-          const destinationValue = getValue({
+        if (originFieldKeys.includes(key)) {
+          const originValue = this.extractParams(originExpression);
+          const result = this.replaceExpression(originExpression, originValue);
+          const destinationValue = this.getValue({
             key: destinationKey,
             property: destinationProperty,
             path: destinationPath,
           });
-          const originValue = getValue({
-            key: originKey,
-            property: originProperty,
-            path: originPath,
-          });
-          if (destinationValue !== originValue) {
-            setValue.bind(this)({
+          if (!isEqual(destinationValue, originValue)) {
+            this.setValue({
               key: destinationKey,
               property: destinationProperty,
               path: destinationPath,
-              value: originValue,
+              value: result,
             });
           }
+          // const destinationValue = getValue({
+          //   key: destinationKey,
+          //   property: destinationProperty,
+          //   path: destinationPath,
+          // });
+          // const originValue = getValue({
+          //   key: originKey,
+          //   property: originProperty,
+          //   path: originPath,
+          // });
+          // if (destinationValue !== originValue) {
+          //   setValue.bind(this)({
+          //     key: destinationKey,
+          //     property: destinationProperty,
+          //     path: destinationPath,
+          //     value: originValue,
+          //   });
+          // }
         }
       }
     );

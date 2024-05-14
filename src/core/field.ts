@@ -92,6 +92,7 @@ class FormField {
     this.resetValues = schemaComponent.resetValues;
     this.api = schemaComponent.api;
     this.formatters = schemaComponent.formatters;
+    this.masks = schemaComponent.masks;
     this.validateVisibility = validateVisibility;
     this.resetValue = resetValue;
     this.templateSubject$ = templateSubject$;
@@ -146,10 +147,10 @@ class FormField {
       '_stateValue' in value
     ) {
       this._value = this.formatValue(value._value);
-      this._stateValue = this.formatValue(value._stateValue);
+      this._stateValue = this.maskValue(this.formatValue(value._stateValue));
     } else {
       this._value = this.formatValue(value);
-      this._stateValue = this.formatValue(value);
+      this._stateValue = this.maskValue(this.formatValue(value));
     }
     // this._value = this.formatValue(value);
     this.valueSubject$.next(this._stateValue);

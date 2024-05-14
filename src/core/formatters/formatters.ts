@@ -1,6 +1,6 @@
 import { TFormatters } from '@/types/schemaTypes';
 import { splitter, undo_splitter } from '@/core/formatters/splitter';
-import { capitalize, uppercase } from '@/core/formatters/string';
+import { capitalize, uppercase, onlyFloatNumber } from '@/core/formatters/string';
 import { onlyNumbers, onlyLetters, regex } from '@/core/formatters/regex';
 import { formatValue, getTypeCard } from '@/helpers/creditCard';
 
@@ -15,6 +15,7 @@ const formatters: Record<
   regex,
   splitter,
   undo_splitter,
+  onlyFloatNumber,
   dotEvery3chars: (value: unknown) => {
     const result = String(value)
       .replace(/\./g, '')

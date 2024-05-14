@@ -199,6 +199,21 @@ const schema: ISchema = {
         min: 'min reached',
       },
     },
+    {
+      component: 'libinput',
+      name: 'Price',
+      props: {
+        label: 'Set your price',
+      },
+      formatters: {
+        onlyFloatNumber: {},
+      },
+      masks: {
+        currency: {
+          prefix: 'EUR'
+        }
+      }
+    },
   ],
 };
 

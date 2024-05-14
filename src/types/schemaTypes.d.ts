@@ -1,4 +1,6 @@
+import { ICurrencyCode } from '@/helpers/currencyCode';
 import { OutgoingHttpHeaders } from 'http2';
+import { LanguageCode,  } from 'iso-639-1';
 
 type TComponents = 'input' | 'div' | 'libinput' | 'dropdown' | 'datepicker';
 
@@ -57,6 +59,7 @@ type TFormatters = {
   uppercase?: boolean;
   onlyNumbers?: boolean;
   onlyLetters?: boolean;
+  onlyFloatNumber?: Pick<TCurrencyMask, 'precision' | 'decimal'>;
   regex?: string;
   gapsCreditCard?: string[];
   callback?: (value: unknown) => unknown;
@@ -65,9 +68,19 @@ type TFormatters = {
 };
 
 // Mask types
+/**
+ * @param align - Prefix alignment in text. (default: right)
+ * @param decimal - Separator of decimals (default: '.')
+ * @param precision - Number of decimal places (default: 2)
+ * @param prefix - Money prefix (default: '$')
+ * @param thousands - Separator of thousands (default: ',')
+ */
 type TCurrencyMask = {
-  locale: string;
-  currency: string;
+  align?: 'left' | 'right';
+  decimal?: string;
+  precision?: number;
+  prefix?: ICurrencyCode;
+  thousands?: string;
 };
 type TMaskGeneric = {
   to: number;

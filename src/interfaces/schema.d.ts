@@ -3,6 +3,7 @@ import {
   TComponents,
   TErrorMessages,
   TFormatters,
+  TMasks,
   TProps,
   TResetValues,
   TValidations,
@@ -19,6 +20,7 @@ interface ISchema {
   errorMessages?: TErrorMessages;
   api?: TApi;
   formatters?: TFormatters;
+  masks?: TMasks;
   children?: ISchema[];
 }
 

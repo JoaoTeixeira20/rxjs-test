@@ -11,6 +11,11 @@ import {
 } from '@/core/validations/regex';
 import { callback } from '@/core/validations/custom';
 import { includes } from '@/core/validations/list';
+import {
+  isCreditCard,
+  isCreditCardAndLength,
+  isCreditCodeMatch,
+} from '@/core/validations/creditCard';
 import { TValidationMethods } from '@/types/schemaTypes';
 
 const validations: Record<
@@ -31,9 +36,14 @@ const validations: Record<
   sequential,
   includes,
   repeated,
+  isCreditCard,
+  isCreditCodeMatch,
+  isCreditCardAndLength,
   required: (value, validations) =>
-    !!(validations.required &&
-    (!value || (typeof value === 'string' && value.length === 0))),
+    !!(
+      validations.required &&
+      (!value || (typeof value === 'string' && value.length === 0))
+    ),
   value: (value, validations) =>
     !!(validations.value && value !== validations.value),
   notEmpty: (value, validations) =>

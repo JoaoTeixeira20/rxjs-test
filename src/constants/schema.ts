@@ -117,7 +117,7 @@ const schema: ISchema = {
         min: 'min value reached',
         required: 'field required',
       },
-      formatters: ['capitalize', 'dotEvery3chars'],
+      formatters: { capitalize: true, dotEvery3chars: true },
     },
     {
       component: 'div',
@@ -199,6 +199,21 @@ const schema: ISchema = {
         max: 'max reached',
         min: 'min reached',
       },
+    },
+    {
+      component: 'libinput',
+      name: 'Price',
+      props: {
+        label: 'Set your price',
+      },
+      formatters: {
+        onlyFloatNumber: {},
+      },
+      masks: {
+        currency: {
+          prefix: 'EUR'
+        }
+      }
     },
   ],
 };

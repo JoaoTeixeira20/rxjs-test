@@ -1,5 +1,6 @@
 import { ICurrencyCode } from '@/helpers/currencyCode';
 import { OutgoingHttpHeaders } from 'http2';
+import { TEvents } from './eventTypes';
 
 type TComponents = 'input' | 'div' | 'libinput' | 'dropdown' | 'datepicker';
 
@@ -116,25 +117,20 @@ type TApiConfig = {
 type TProps = Record<string, unknown>;
 
 type TValidations = Partial<
-  Record<keyof HTMLElementEventMap, TValidationMethods>
+  Record<TEvents, TValidationMethods>
 >;
 
 type TVisibilityContitions = Partial<
-  Record<keyof HTMLElementEventMap, TVisibility[]>
+  Record<TEvents, TVisibility[]>
 >;
 
 type TResetValues = Partial<
-  Record<keyof HTMLElementEventMap, TResetValueMethods[]>
+  Record<TEvents, TResetValueMethods[]>
 >;
 
 type TErrorMessages = Partial<Record<keyof TValidationMethods, string>>;
 
-type TErrorList = Partial<Record<keyof TValidationMethods, string>>;
-
-type TApi = {
-  config: TApiConfig;
-  events: Partial<keyof HTMLElementEventMap>[];
-};
+type TApi = { config: TApiConfig; events: Partial<TEvents>[] };
 
 export {
   TApi,

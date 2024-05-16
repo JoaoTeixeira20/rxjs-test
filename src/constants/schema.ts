@@ -15,15 +15,15 @@ const schema: ISchema = {
         min: new Date(),
         max: new Date(new Date().setDate(new Date().getDate() + 120)),
       },
-      // api: {
-      //   config: {
-      //     method: 'GET',
-      //     url: 'http://localhost:3023/plan/address/provinces',
-      //     resultPath: 'result',
-      //     fallbackValue: [],
-      //   },
-      //   events: ['ON_FIELD_MOUNT'],
-      // },
+      api: {
+        config: {
+          method: 'GET',
+          url: 'http://localhost:3023/plan/address/provinces',
+          resultPath: 'result',
+          fallbackValue: [],
+        },
+        events: ['ON_FIELD_MOUNT'],
+      },
     },
     {
       component: 'dropdown',

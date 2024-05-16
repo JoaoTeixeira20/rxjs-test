@@ -1,17 +1,52 @@
 import { ISchema } from '@/interfaces/schema';
-import { FormContextProvider } from '../context/FormContext';
-import RenderSchema from '../generators/formBuilder';
-import { TMapper } from '@/reactAdapter/mappers/mappers';
+import { BuildTree } from '../generators/formBuilder';
+import {
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
+import { useFormGroupContext } from '../context/FormGroupContext';
+import FormCore from '@/core/form';
 
-const Form = (props: {
-  schema: ISchema;
-  mappers: TMapper[];
+const Form = ({
+  schema,
+  index,
+  initialValues,
+  children,
+}: PropsWithChildren<{
+  schema?: ISchema;
+  index: string;
   initialValues?: Record<string, unknown>;
-}) => {
+}>) => {
+  const { addForm, removeForm, getForm, mappers } = useFormGroupContext();
+  const [tree, setTree] = useState<ReactElement>();
+
+  useEffect(() => {
+    const formInstance = new FormCore({ schema: schema, initialValues });
+    addForm({ key: index, formInstance });
+
+    const fields = getForm({ key: index })?.fields;
+
+    fields &&
+      getForm({ key: index })?.schema &&
+      setTree(
+        BuildTree({
+          fields,
+          mappers,
+          formKey: index,
+        })
+      );
+    return () => removeForm({ key: index });
+  }, []);
+
   return (
-    <FormContextProvider {...props}>
-      <RenderSchema></RenderSchema>
-    </FormContextProvider>
+    <form>
+      <b style={{ padding: '0px', margin: '0px' }}>{`form index:${index}`}</b>
+      <br></br>
+      {tree && tree}
+      {children && children}
+    </form>
   );
 };
 

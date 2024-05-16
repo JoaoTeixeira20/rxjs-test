@@ -11,7 +11,7 @@ import { isEqual } from 'lodash';
 import { TEvents } from '@/types/eventTypes';
 
 class FormCore {
-  schema: ISchema;
+  schema?: ISchema;
   fields: Map<string, IFormField>;
   initialValues?: Record<string, unknown>;
   templateSubject$: Subject<{ key: string }>;
@@ -20,18 +20,19 @@ class FormCore {
     schema,
     initialValues,
   }: {
-    schema: ISchema;
+    schema?: ISchema;
     initialValues?: Record<string, unknown>;
   }) {
     this.schema = schema;
     this.fields = new Map();
     this.initialValues = initialValues;
-    FormCore.checkIndexes(schema);
+    this.schema && FormCore.checkIndexes(this.schema);
     this.templateSubject$ = new Subject();
     this.subscribedTemplates = [];
-    this.serializeStructure(this.schema);
-    this.subscribeTemplates();
-    this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
+    this.schema && this.serializeStructure(this.schema);
+    this.schema && this.subscribeTemplates();
+    this.schema &&
+      this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
   }
 
   subscribeTemplates() {
@@ -341,6 +342,10 @@ class FormCore {
         );
       });
     }
+  }
+
+  getField({ key }: { key: string }) {
+    return this.fields.get(key);
   }
 
   printValues() {

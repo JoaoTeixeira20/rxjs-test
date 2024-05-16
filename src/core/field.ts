@@ -26,6 +26,7 @@ import {
 } from '@/types/schemaTypes';
 import { ISchema } from '@/interfaces/schema';
 import { IState } from '@/interfaces/state';
+import { TEvents } from '@/types/eventTypes';
 
 class FormField {
   name: string;
@@ -58,8 +59,8 @@ class FormField {
   fieldStateSubscription$: Subscription;
   templateSubject$: Subject<{ key: string }>;
   // form state handlers
-  validateVisibility: (event: keyof HTMLElementEventMap, key: string) => void;
-  resetValue: (event: keyof HTMLElementEventMap, key: string) => void;
+  validateVisibility: (event: TEvents, key: string) => void;
+  resetValue: (event: TEvents, key: string) => void;
   debouncedRequest: (config: TApiConfig) => Promise<void>;
 
   constructor({
@@ -74,8 +75,8 @@ class FormField {
     schemaComponent: ISchema;
     path?: string;
     children: string[];
-    validateVisibility: (event: keyof HTMLElementEventMap, key: string) => void;
-    resetValue: (event: keyof HTMLElementEventMap, key: string) => void;
+    validateVisibility: (event: TEvents, key: string) => void;
+    resetValue: (event: TEvents, key: string) => void;
     initialValue?: unknown;
     templateSubject$: Subject<{ key: string }>;
   }) {
@@ -223,6 +224,8 @@ class FormField {
       ),
       props: this.propsSubject$.pipe(startWith(this._props)),
     });
+
+    this.emitEvents({ event: 'ON_FIELD_MOUNT' });
   }
 
   emitValue({
@@ -230,51 +233,51 @@ class FormField {
     event,
   }: {
     value: unknown | { _value: unknown; _stateValue: unknown };
-    event: keyof HTMLElementEventMap;
+    event: TEvents;
   }): void {
     this.value = value;
     this.emitEvents({ event });
   }
 
-  emitEvents({ event }: { event: keyof HTMLElementEventMap }): void {
+  emitEvents({ event }: { event: TEvents }): void {
     this.validations?.[event] && this.setFieldValidity({ event });
     this.visibilityConditions?.[event] &&
       this.validateVisibility(event, this.name);
     this.resetValues?.[event] && this.resetValue(event, this.name);
-    this.api?.config && this.debouncedRequest(this.api?.config);
+    this.api?.events?.includes(event) &&
+      this.api?.config &&
+      this.debouncedRequest(this.api?.config);
   }
 
-  setFieldValidity({ event }: { event: keyof HTMLElementEventMap }): void {
+  setFieldValidity({ event }: { event: TEvents }): void {
     if (!this.validations) {
       this._valid = true;
       return;
     }
     let valid = true;
     let errors = { ...this.errors };
-    Object.keys(this.validations).forEach(
-      (schemaEvent: keyof HTMLElementEventMap) => {
-        const schemaValidations = this.validations?.[schemaEvent];
-        schemaValidations &&
-          Object.keys(schemaValidations).forEach(
-            (validationKey: keyof TValidationMethods) => {
-              const error = validations[validationKey](
-                this.value,
-                this.validations?.[schemaEvent] as TValidationMethods
-              );
-              // setting valid flag
-              valid = !error && valid;
-              // setting error messages
-              if (event === schemaEvent) {
-                if (error && this.errorMessages?.[validationKey]) {
-                  errors[validationKey] = this.errorMessages[validationKey];
-                } else {
-                  delete errors[validationKey];
-                }
+    Object.keys(this.validations).forEach((schemaEvent: TEvents) => {
+      const schemaValidations = this.validations?.[schemaEvent];
+      schemaValidations &&
+        Object.keys(schemaValidations).forEach(
+          (validationKey: keyof TValidationMethods) => {
+            const error = validations[validationKey](
+              this.value,
+              this.validations?.[schemaEvent] as TValidationMethods
+            );
+            // setting valid flag
+            valid = !error && valid;
+            // setting error messages
+            if (event === schemaEvent) {
+              if (error && this.errorMessages?.[validationKey]) {
+                errors[validationKey] = this.errorMessages[validationKey];
+              } else {
+                delete errors[validationKey];
               }
             }
-          );
-      }
-    );
+          }
+        );
+    });
     this._valid = valid;
     this.errors = errors;
     // remove later

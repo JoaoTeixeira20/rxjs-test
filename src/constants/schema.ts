@@ -20,9 +20,9 @@ const schema: ISchema = {
       //     method: 'GET',
       //     url: 'http://localhost:3023/plan/address/provinces',
       //     resultPath: 'result',
-      //     fallbackValue: '',
+      //     fallbackValue: [],
       //   },
-      //   events: ['input']
+      //   events: ['ON_FIELD_MOUNT'],
       // },
     },
     {
@@ -67,19 +67,19 @@ const schema: ISchema = {
         // errorMessage: '${name.errorsString}'
       },
       validations: {
-        input: {
+        ON_FIELD_CHANGE: {
           max: 18,
           min: 16,
           required: true,
         },
-        blur: {
+        ON_FIELD_BLUR: {
           max: 18,
           min: 16,
           required: true,
         },
       },
       visibilityConditions: {
-        input: [
+        ON_FIELD_CHANGE: [
           {
             validations: {
               max: 18,
@@ -89,7 +89,7 @@ const schema: ISchema = {
         ],
       },
       resetValues: {
-        input: [
+        ON_FIELD_CHANGE: [
           {
             validations: {
               max: 18,
@@ -110,7 +110,7 @@ const schema: ISchema = {
           resultPath: 'value',
           fallbackValue: '',
         },
-        events: ['input'],
+        events: ['ON_FIELD_CHANGE'],
       },
       errorMessages: {
         max: 'max value reached',
@@ -147,7 +147,7 @@ const schema: ISchema = {
                 label: 'foo',
               },
               visibilityConditions: {
-                input: [
+                ON_FIELD_CHANGE: [
                   {
                     validations: {
                       max: 18,
@@ -190,7 +190,7 @@ const schema: ISchema = {
         label: '${name.value}',
       },
       validations: {
-        blur: {
+        ON_FIELD_BLUR: {
           max: 18,
           min: 16,
         },

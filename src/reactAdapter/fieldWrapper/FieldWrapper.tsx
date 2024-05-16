@@ -1,5 +1,6 @@
 import { IState } from '@/interfaces/state';
 import { useFormContext } from '@/reactAdapter/context/FormContext';
+import { TEvents } from '@/types/eventTypes';
 import {
   useState,
   useEffect,
@@ -59,14 +60,14 @@ const FieldWrapper = ({
     let value;
     if (valueChangeEvent) {
       value = valueChangeEvent(event);
-      fieldInstance.emitValue({ value, event: 'input' });
+      fieldInstance.emitValue({ value, event: 'ON_FIELD_CHANGE' });
       return;
     }
     value = (event as SyntheticEvent<HTMLInputElement>).currentTarget.value;
-    fieldInstance.emitValue({ value, event: 'input' });
+    fieldInstance.emitValue({ value, event: 'ON_FIELD_CHANGE' });
   }, []);
 
-  const handleEvent = useCallback((event: keyof HTMLElementEventMap) => {
+  const handleEvent = useCallback((event: TEvents) => {
     fieldInstance.emitEvents({ event });
   }, []);
 
@@ -82,7 +83,7 @@ const FieldWrapper = ({
       <Component
         {...state?.props}
         onChange={handleChange}
-        onBlur={() => handleEvent('blur')}
+        onBlur={() => handleEvent('ON_FIELD_BLUR')}
         value={value}
       >
         {children && children}

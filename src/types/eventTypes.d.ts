@@ -1,0 +1,12 @@
+type TEvents =
+  | 'ON_FIELD_MOUNT'
+  | 'ON_FIELD_CHANGE'
+  | 'ON_FIELD_BLUR'
+  | 'ON_FIELD_FOCUS'
+  | 'ON_FIELD_CLEARED'
+  | 'ON_FIELD_CLICK'
+  | 'ON_FIELD_KEYUP'
+  | 'ON_FIELD_KEYDOWN'
+  | 'ON_FIELD_BINDED';
+
+export { TEvents };

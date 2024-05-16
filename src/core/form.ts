@@ -8,6 +8,7 @@ import { ISchema } from '@/interfaces/schema';
 import { TValidationMethods } from '@/types/schemaTypes';
 import { TSubscribedTemplates } from '@/types/templateTypes';
 import { isEqual } from 'lodash';
+import { TEvents } from '@/types/eventTypes';
 
 class FormCore {
   schema: ISchema;
@@ -245,7 +246,7 @@ class FormCore {
     return indexes;
   };
 
-  validateVisibility(event: keyof HTMLElementEventMap, key: string) {
+  validateVisibility(event: TEvents, key: string) {
     const field = this.fields.get(key);
     const structVisibility = field?.visibilityConditions?.[event];
     if (!structVisibility) return;
@@ -277,7 +278,7 @@ class FormCore {
     });
   }
 
-  resetValue(event: keyof HTMLElementEventMap, key: string) {
+  resetValue(event: TEvents, key: string) {
     const field = this.fields.get(key);
     const structResetValue = field?.resetValues?.[event];
     if (!structResetValue) return;

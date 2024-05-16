@@ -19,6 +19,7 @@ import {
   TErrorList,
   TErrorMessages,
   TFormatters,
+  TMasks,
   TResetValues,
   TValidationMethods,
   TValidations,
@@ -27,6 +28,7 @@ import {
 import { ISchema } from '@/interfaces/schema';
 import { IState } from '@/interfaces/state';
 import { TEvents } from '@/types/eventTypes';
+import { masks } from '@/core/masks/masks';
 
 class FormField {
   name: string;
@@ -39,7 +41,8 @@ class FormField {
   resetValues?: TResetValues;
   errorMessages?: TErrorMessages;
   api?: TApi;
-  formatters?: TFormatters[];
+  formatters?: TFormatters;
+  masks?: TMasks;
   // variable properties
   _props: Record<string, unknown>;
   _value: unknown;
@@ -90,6 +93,7 @@ class FormField {
     this.resetValues = schemaComponent.resetValues;
     this.api = schemaComponent.api;
     this.formatters = schemaComponent.formatters;
+    this.masks = schemaComponent.masks;
     this.validateVisibility = validateVisibility;
     this.resetValue = resetValue;
     this.templateSubject$ = templateSubject$;
@@ -144,10 +148,10 @@ class FormField {
       '_stateValue' in value
     ) {
       this._value = this.formatValue(value._value);
-      this._stateValue = this.formatValue(value._stateValue);
+      this._stateValue = this.maskValue(this.formatValue(value._stateValue));
     } else {
       this._value = this.formatValue(value);
-      this._stateValue = this.formatValue(value);
+      this._stateValue = this.maskValue(this.formatValue(value));
     }
     // this._value = this.formatValue(value);
     this.valueSubject$.next(this._stateValue);
@@ -293,8 +297,20 @@ class FormField {
 
   formatValue(value: unknown): unknown {
     if (this.formatters) {
-      return this.formatters.reduce((acc, curr) => {
-        return formatters[curr](acc);
+      return Object.keys(this.formatters).reduce(
+        (acc, curr: keyof TFormatters) => {
+          return formatters[curr](acc, this.formatters);
+        },
+        value
+      );
+    }
+    return value;
+  }
+
+  maskValue(value: unknown): unknown {
+    if (this.masks) {
+      return Object.keys(this.masks).reduce((acc, curr: keyof TMasks) => {
+        return masks[curr](acc, this.masks);
       }, value);
     }
     return value;

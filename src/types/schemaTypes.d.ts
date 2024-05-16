@@ -1,3 +1,4 @@
+import { ICurrencyCode } from '@/helpers/currencyCode';
 import { OutgoingHttpHeaders } from 'http2';
 import { TEvents } from './eventTypes';
 
@@ -19,6 +20,7 @@ type TBetweenValidation = {
   start: number;
   end: number;
 };
+type TCreditCardMatch = { numberCard: string; availableOptions: string[] };
 
 type TValidationMethods = {
   max?: number;
@@ -40,9 +42,62 @@ type TValidationMethods = {
   sequential?: boolean;
   repeated?: boolean;
   includes?: string[] | number[];
+  isCreditCard?: string[];
+  isCreditCodeMatch?: TCreditCardMatch;
+  isCreditCardAndLength?: string[];
 };
 
-type TFormatters = 'dotEvery3chars' | 'capitalize' | 'onlyNumbers';
+// Formatter types
+type TSplitterFormatterValue = {
+  value: string;
+  position: number;
+};
+
+type TFormatters = {
+  dotEvery3chars?: boolean;
+  capitalize?: boolean;
+  uppercase?: boolean;
+  onlyNumbers?: boolean;
+  onlyLetters?: boolean;
+  onlyFloatNumber?: Pick<TCurrencyMask, 'precision' | 'decimal'>;
+  regex?: string;
+  gapsCreditCard?: string[];
+  callback?: (value: unknown) => unknown;
+  splitter?: TSplitterFormatterValue[];
+  undo_splitter?: TSplitterFormatterValue[];
+};
+
+// Mask types
+/**
+ * @param align - Prefix alignment in text. (default: right)
+ * @param decimal - Separator of decimals (default: '.')
+ * @param precision - Number of decimal places (default: 2)
+ * @param prefix - Money prefix (default: '$')
+ * @param thousands - Separator of thousands (default: ',')
+ */
+type TCurrencyMask = {
+  align?: 'left' | 'right';
+  decimal?: string;
+  precision?: number;
+  prefix?: ICurrencyCode;
+  thousands?: string;
+};
+type TMaskGeneric = {
+  to: number;
+  from: number;
+  mask: string;
+};
+
+type TMasks = {
+  currency?: TCurrencyMask;
+  generic?: TMaskGeneric[];
+  secureCreditCard?: boolean;
+  card?: boolean;
+  cardDate?: boolean;
+  fein?: boolean;
+  replaceAll?: string | number;
+  callback?(value: unknown): string;
+};
 
 type TVisibility = {
   validations: TValidationMethods;
@@ -84,6 +139,7 @@ export {
   TResetValues,
   TVisibilityContitions,
   TValidations,
+  TMasks,
   TProps,
   TResetValueMethods,
   TFormatters,

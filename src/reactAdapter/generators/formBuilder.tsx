@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react';
+import { Children, ReactElement, ReactNode, useEffect } from 'react';
 import FieldWrapper from '../fieldWrapper/FieldWrapper';
 import { IFormField } from '@/core/field';
 import { TMapper } from '../mappers/mappers';
@@ -8,8 +8,8 @@ import { ISchema } from '@/interfaces/schema';
  * @deprecated Use BuildTree instead
  */
 const BuildReactTreeFromSchema = (schema: ISchema): ReactElement => {
-  return <div>deprecated</div>
-}
+  return <div>deprecated</div>;
+};
 // const BuildReactTreeFromSchema = (schema: ISchema): ReactElement => {
 //   const { component, children, name } = schema;
 //   const { mappers } = useFormContext();
@@ -93,6 +93,31 @@ const BuildTree = ({
   );
 };
 
+const BuildAsFormFieldTree = ({
+  children,
+}: {
+  children?: ReactNode | undefined;
+}): ISchema[] | undefined => {
+  //@ts-ignore
+  return Children.map(children, (child: JSX.Element, index) => {
+    if (!child?.type?.name || child.type.name !== 'AsFormField') {
+      throw new Error('only use AsFormField inside the Form component');
+      // console.log(child.type.name);
+    }
+    const struct = { ...child.props } as ISchema;
+    delete struct.children;
+
+    const childElements = BuildAsFormFieldTree({
+      children: child.props?.children,
+    });
+
+    return {
+      ...struct,
+      ...(childElements && { children: childElements }),
+    };
+  });
+};
+
 // const RenderSchema = () => {
 //   const { printValues, printInstance, tree, getFieldInstance } =
 //     useFormContext();
@@ -110,4 +135,4 @@ const BuildTree = ({
 
 // export default RenderSchema;
 
-export { BuildTree };
+export { BuildTree, BuildAsFormFieldTree };

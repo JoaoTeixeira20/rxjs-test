@@ -322,18 +322,25 @@ class FormCore {
   }
 
   serializeStructure(struct: ISchema, path?: string): void {
-    this.fields.set(
-      struct.name,
-      new FormField({
-        schemaComponent: struct,
-        path,
-        children: struct.children ? struct.children.map((el) => el.name) : [],
-        validateVisibility: this.validateVisibility.bind(this),
-        resetValue: this.resetValue.bind(this),
-        initialValue: this.initialValues?.[struct.name],
-        templateSubject$: this.templateSubject$,
-      })
-    );
+    const currField = this.fields.get(struct.name);
+    if (!currField) {
+      this.fields.set(
+        struct.name,
+        new FormField({
+          schemaComponent: struct,
+          path,
+          children: struct.children ? struct.children.map((el) => el.name) : [],
+          validateVisibility: this.validateVisibility.bind(this),
+          resetValue: this.resetValue.bind(this),
+          initialValue: this.initialValues?.[struct.name],
+          templateSubject$: this.templateSubject$,
+        })
+      );
+    } else {
+      currField.children =
+        struct?.children?.map((el) => el.name) || currField?.children || [];
+      currField.path = path;
+    }
     if (struct.children) {
       struct.children.forEach((el) => {
         return this.serializeStructure(
@@ -342,6 +349,19 @@ class FormCore {
         );
       });
     }
+  }
+
+  refreshFields(struct: ISchema) {
+    this.serializeStructure(struct);
+    const keys = FormCore.checkIndexes(struct);
+    this.fields.forEach((_, key) => {
+      if (!keys.includes(key)) {
+        this.fields.get(key)?.destroyField();
+        this.fields.delete(key);
+      }
+    });
+    this.subscribeTemplates();
+    // this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
   }
 
   getField({ key }: { key: string }) {

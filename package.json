@@ -20,8 +20,8 @@
     "@bolttech/molecules-dropdown": "^0.28.2",
     "credit-card-type": "^10.0.0",
     "lodash": "^4.17.21",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {

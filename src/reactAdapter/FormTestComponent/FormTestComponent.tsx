@@ -1,11 +1,13 @@
-import { ReactElement, useEffect } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import Form from '../form/Form';
 import { schema } from '@/constants/schema';
 import { useFormGroupContext } from '../context/FormGroupContext';
+import AsFormField from '../AsFormField/AsFormField';
 // import FieldWrapper from '../fieldWrapper/FieldWrapper';
 
 const FormTestComponent = (): ReactElement => {
   const { getForm, mappers, printFormGroupInstance } = useFormGroupContext();
+  const [length, setLength] = useState(0);
 
   useEffect(() => {
     getForm({ key: 'foo' })
@@ -16,18 +18,24 @@ const FormTestComponent = (): ReactElement => {
     );
   }, []);
 
-  const component = mappers.find((el) => el.componentName === 'dropdown');
+  const handleAdd = () => {
+    setLength((prev) => prev + 1);
+  };
+
+  const handleRemove = () => {
+    setLength((prev) => prev - 1);
+  };
 
   return (
     <>
       <button onClick={printFormGroupInstance}>print groupInstance</button>
-      <button onClick={() => console.log(getForm({ key: 'foo' }))}>
-        print foo formInstance
+      <button onClick={() => console.log(getForm({ key: 'bar' }))}>
+        print bar formInstance
       </button>
-      <button onClick={() => getForm({ key: 'foo' })?.printValues()}>
-        print foo values
+      <button onClick={() => getForm({ key: 'bar' })?.printValues()}>
+        print bar values
       </button>
-      <Form
+      {/* <Form
         index='foo'
         schema={schema}
         initialValues={{
@@ -36,16 +44,46 @@ const FormTestComponent = (): ReactElement => {
           baz: 'baz',
         }}
       >
-        {/* {component && (
-          <FieldWrapper
-            Component={component.component}
-            formKey='bar'
-            index='mycustomdropdown'
-            valueChangeEvent={component.valueChangeEvent}
-          ></FieldWrapper>
-        )} */}
+      </Form> */}
+      <Form index='bar'>
+        <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
+          <AsFormField
+            component='libinput'
+            name='bar'
+            props={{ label: 'bar' }}
+          ></AsFormField>
+          <AsFormField
+            component='libinput'
+            name='baz'
+            props={{ label: 'baz' }}
+          ></AsFormField>
+          <AsFormField component='div' name='bal' props={{ label: 'bal' }}>
+            {Array(length)
+              .fill(0)
+              .map((_, index) => (
+                <AsFormField
+                  key={index}
+                  component='libinput'
+                  name={`test_${index}`}
+                  // props={{ label: '${bar.value}' }}
+                  props={{ label: `test_${index}` }}
+                  validations={{
+                    ON_FIELD_CHANGE: {
+                      max: 20,
+                      min: 10,
+                    },
+                  }}
+                  errorMessages={{
+                    max: 'max reached',
+                    min: 'min reached',
+                  }}
+                />
+              ))}
+          </AsFormField>
+        </AsFormField>
       </Form>
-      <Form index='bar'>{`insert asFormField components here (will be hard.. D:)`}</Form>
+      <button onClick={handleAdd}>add field</button>
+      <button onClick={handleRemove}>add field</button>
     </>
   );
 };

@@ -65,8 +65,8 @@ const FormTestComponent = (): ReactElement => {
                   key={index}
                   component='libinput'
                   name={`test_${index}`}
-                  // props={{ label: '${bar.value}' }}
-                  props={{ label: `test_${index}` }}
+                  props={{ label: '${bar.value}' }}
+                  // props={{ label: `test_${index}` }}
                   validations={{
                     ON_FIELD_CHANGE: {
                       max: 20,

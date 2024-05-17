@@ -31,8 +31,7 @@ class FormCore {
     this.subscribedTemplates = [];
     this.schema && this.serializeStructure(this.schema);
     this.schema && this.subscribeTemplates();
-    this.schema &&
-      this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
+    this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
   }
 
   subscribeTemplates() {
@@ -340,6 +339,7 @@ class FormCore {
       currField.children =
         struct?.children?.map((el) => el.name) || currField?.children || [];
       currField.path = path;
+      currField.templateSubject$ = this.templateSubject$;
     }
     if (struct.children) {
       struct.children.forEach((el) => {
@@ -361,6 +361,12 @@ class FormCore {
       }
     });
     this.subscribeTemplates();
+    //@TODO bruteforce way, need to optimize
+    this.subscribedTemplates.forEach((el) => {
+      el.originFieldKeys.forEach((field) => {
+        this.templateSubject$.next({ key: field });
+      });
+    });
     // this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
   }
 

@@ -1,6 +1,6 @@
 import { ISchema } from '@/interfaces/schema';
 
-const schema: ISchema = {
+const schema: ISchema[] = [{
   component: 'div',
   name: 'container',
   props: {
@@ -15,15 +15,15 @@ const schema: ISchema = {
         min: new Date(),
         max: new Date(new Date().setDate(new Date().getDate() + 120)),
       },
-      // api: {
-      //   config: {
-      //     method: 'GET',
-      //     url: 'http://localhost:3023/plan/address/provinces',
-      //     resultPath: 'result',
-      //     fallbackValue: [],
-      //   },
-      //   events: ['ON_FIELD_MOUNT'],
-      // },
+      api: {
+        config: {
+          method: 'GET',
+          url: 'http://localhost:3023/plan/address/provinces',
+          resultPath: 'result',
+          fallbackValue: [],
+        },
+        events: ['ON_FIELD_MOUNT'],
+      },
     },
     {
       component: 'dropdown',
@@ -202,7 +202,7 @@ const schema: ISchema = {
     },
     {
       component: 'libinput',
-      name: 'Price',
+      name: 'Price mask',
       props: {
         label: 'Set your price',
       },
@@ -211,11 +211,24 @@ const schema: ISchema = {
       },
       masks: {
         currency: {
-          prefix: 'EUR'
-        }
-      }
+          prefix: 'EUR',
+        },
+      },
+    },
+    {
+      component: 'libinput',
+      name: 'Custom mask',
+      props: {
+        label: 'Set your custom mask',
+      },
+      formatters: {
+        onlyNumbers: true,
+      },
+      masks: {
+        custom: '(##) ##### - ####',
+      },
     },
   ],
-};
+}];
 
 export { schema };

@@ -4,20 +4,15 @@ import Form from './form/Form';
 import { mappers } from '@/reactAdapter/mappers/mappers';
 import { BolttechThemeProvider } from '@bolttech/frontend-foundations';
 import { bolttechTheme } from '@bolttech/default-theme';
+import { FormGroupContextProvider } from './context/FormGroupContext';
+import FormTestComponent from './FormTestComponent/FormTestComponent';
 
 const App = () => (
   <>
     <BolttechThemeProvider theme={bolttechTheme}>
-      <Form
-        schema={schema}
-        mappers={mappers}
-        initialValues={{
-          name: 'foo',
-          bal: 'bal',
-          baz: 'baz',
-          provinces: 'ALBACETE',
-        }}
-      />
+      <FormGroupContextProvider mappers={mappers}>
+        <FormTestComponent/>
+      </FormGroupContextProvider>
     </BolttechThemeProvider>
   </>
 );

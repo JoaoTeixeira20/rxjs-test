@@ -1,4 +1,5 @@
 import length from '@/core/validations/length';
+import document from '@/core/validations/document';
 import { min, max, between, sequential } from '@/core/validations/number';
 import {
   regex,
@@ -18,7 +19,7 @@ import {
 } from '@/core/validations/creditCard';
 import { TValidationMethods } from '@/types/schemaTypes';
 
-const validations: Record<
+export const validations: Record<
   keyof TValidationMethods,
   (value: unknown, validations: TValidationMethods) => boolean
 > = {
@@ -36,6 +37,7 @@ const validations: Record<
   sequential,
   includes,
   repeated,
+  document,
   isCreditCard,
   isCreditCodeMatch,
   isCreditCardAndLength,
@@ -51,5 +53,3 @@ const validations: Record<
   greaterThan: () => true,
   isNumber: () => true,
 };
-
-export { validations };

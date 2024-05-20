@@ -1,5 +1,4 @@
 import { IState } from '@/interfaces/state';
-import { useFormContext } from '@/reactAdapter/context/FormContext';
 import { TEvents } from '@/types/eventTypes';
 import {
   useState,
@@ -8,14 +7,15 @@ import {
   SyntheticEvent,
   PropsWithChildren,
   ReactElement,
-  useMemo,
   ElementType,
 } from 'react';
+import { useFormGroupContext } from '../context/FormGroupContext';
 
 const FieldWrapper = ({
   index,
   Component,
   valueChangeEvent,
+  formKey,
   children,
   onBlur,
   onChange,
@@ -28,6 +28,7 @@ const FieldWrapper = ({
   index: string;
   Component: ElementType;
   valueChangeEvent?: (event: unknown) => unknown;
+  formKey: string;
   onBlur?: string;
   onChange?: string;
   onFocus?: string;
@@ -36,8 +37,10 @@ const FieldWrapper = ({
   onKeyDown?: string;
   value?: unknown;
 }>): ReactElement => {
-  const { getFieldInstance } = useFormContext();
-  const fieldInstance = useMemo(() => getFieldInstance(index), [index]);
+  const { formGroupInstance } = useFormGroupContext();
+  const fieldInstance = formGroupInstance
+    .getForm({ key: formKey })
+    ?.getField({ key: index });
   if (!fieldInstance) return <div>{`field ${index} not found :(`}</div>;
   const [valueState, setValueState] = useState(fieldInstance.value);
   const [state, setState] = useState<Partial<IState>>({ visibility: true });

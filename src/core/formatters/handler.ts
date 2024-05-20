@@ -1,10 +1,13 @@
 import { TFormatters } from '@/types/schemaTypes';
 import { splitter, undo_splitter } from '@/core/formatters/splitter';
-import { capitalize, uppercase, onlyFloatNumber } from '@/core/formatters/string';
+import {
+  capitalize,
+  uppercase,
+  onlyFloatNumber,
+} from '@/core/formatters/string';
 import { onlyNumbers, onlyLetters, regex } from '@/core/formatters/regex';
 import { formatValue, getTypeCard } from '@/helpers/creditCard';
-
-const formatters: Record<
+export const formatters: Record<
   keyof TFormatters,
   (value: unknown, formatters?: TFormatters) => unknown
 > = {
@@ -32,5 +35,3 @@ const formatters: Record<
   callback: (value: unknown, formatters) =>
     formatters?.callback && formatters.callback(value),
 };
-
-export { formatters };

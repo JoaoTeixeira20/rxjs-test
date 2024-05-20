@@ -173,6 +173,14 @@ class FormField {
     return this._errors;
   }
 
+  get valid() {
+    return this._valid;
+  }
+
+  set valid(valid: boolean) {
+    this._valid = valid;
+  }
+
   set errors(errors: TErrorList) {
     if (typeof errors === 'undefined' || isEqual(errors, this.errors)) return;
     this._errors = errors;
@@ -244,7 +252,7 @@ class FormField {
   }
 
   emitEvents({ event }: { event: TEvents }): void {
-    this.validations?.[event] && this.setFieldValidity({ event });
+    this.setFieldValidity({ event });
     this.visibilityConditions?.[event] &&
       this.validateVisibility(event, this.name);
     this.resetValues?.[event] && this.resetValue(event, this.name);

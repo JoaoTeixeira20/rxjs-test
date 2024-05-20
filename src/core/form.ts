@@ -278,6 +278,13 @@ class FormCore {
     });
   }
 
+  validate(): boolean {
+    for (let [, field] of this.fields) {
+      if (!field.valid) return false;
+    }
+    return true;
+  }
+
   resetValue(event: TEvents, key: string) {
     const field = this.fields.get(key);
     const structResetValue = field?.resetValues?.[event];
@@ -340,12 +347,17 @@ class FormCore {
         );
       } else {
         currField.children =
-        structElement?.children?.map((el) => el.name) || currField?.children || [];
+          structElement?.children?.map((el) => el.name) ||
+          currField?.children ||
+          [];
         currField.path = path;
         currField.templateSubject$ = this.templateSubject$;
       }
       if (structElement.children) {
-        return this.serializeStructure(structElement.children, `${path ? `${path}.` : ``}${structElement.name}`)
+        return this.serializeStructure(
+          structElement.children,
+          `${path ? `${path}.` : ``}${structElement.name}`
+        );
       }
     });
   }

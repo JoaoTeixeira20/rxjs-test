@@ -11,7 +11,7 @@ import { isEqual } from 'lodash';
 import { TEvents } from '@/types/eventTypes';
 
 class FormCore {
-  schema: ISchema;
+  schema?: ISchema[];
   fields: Map<string, IFormField>;
   initialValues?: Record<string, unknown>;
   templateSubject$: Subject<{ key: string }>;
@@ -20,17 +20,17 @@ class FormCore {
     schema,
     initialValues,
   }: {
-    schema: ISchema;
+    schema?: ISchema[];
     initialValues?: Record<string, unknown>;
   }) {
     this.schema = schema;
     this.fields = new Map();
     this.initialValues = initialValues;
-    FormCore.checkIndexes(schema);
+    this.schema && FormCore.checkIndexes(this.schema);
     this.templateSubject$ = new Subject();
     this.subscribedTemplates = [];
-    this.serializeStructure(this.schema);
-    this.subscribeTemplates();
+    this.schema && this.serializeStructure(this.schema);
+    this.schema && this.subscribeTemplates();
     this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
   }
 
@@ -234,15 +234,15 @@ class FormCore {
   }
 
   private static checkIndexes = (
-    struct: ISchema,
+    struct: ISchema[],
     indexes: string[] = []
   ): string[] => {
-    indexes.push(struct.name);
-    if (struct.children) {
-      struct.children.forEach((el) => {
-        return FormCore.checkIndexes(el, indexes);
-      });
-    }
+    struct.forEach((structElement) => {
+      indexes.push(structElement.name);
+      if (structElement.children) {
+        return FormCore.checkIndexes(structElement.children, indexes);
+      }
+    });
     return indexes;
   };
 
@@ -320,27 +320,57 @@ class FormCore {
     });
   }
 
-  serializeStructure(struct: ISchema, path?: string): void {
-    this.fields.set(
-      struct.name,
-      new FormField({
-        schemaComponent: struct,
-        path,
-        children: struct.children ? struct.children.map((el) => el.name) : [],
-        validateVisibility: this.validateVisibility.bind(this),
-        resetValue: this.resetValue.bind(this),
-        initialValue: this.initialValues?.[struct.name],
-        templateSubject$: this.templateSubject$,
-      })
-    );
-    if (struct.children) {
-      struct.children.forEach((el) => {
-        return this.serializeStructure(
-          el,
-          `${path ? `${path}.` : ``}${struct.name}`
+  serializeStructure(struct: ISchema[], path?: string): void {
+    struct.forEach((structElement) => {
+      const currField = this.fields.get(structElement.name);
+      if (!currField) {
+        this.fields.set(
+          structElement.name,
+          new FormField({
+            schemaComponent: structElement,
+            path,
+            children: structElement.children
+              ? structElement.children.map((el) => el.name)
+              : [],
+            validateVisibility: this.validateVisibility.bind(this),
+            resetValue: this.resetValue.bind(this),
+            initialValue: this.initialValues?.[structElement.name],
+            templateSubject$: this.templateSubject$,
+          })
         );
+      } else {
+        currField.children =
+        structElement?.children?.map((el) => el.name) || currField?.children || [];
+        currField.path = path;
+        currField.templateSubject$ = this.templateSubject$;
+      }
+      if (structElement.children) {
+        return this.serializeStructure(structElement.children, `${path ? `${path}.` : ``}${structElement.name}`)
+      }
+    });
+  }
+
+  refreshFields(struct: ISchema[]) {
+    this.serializeStructure(struct);
+    const keys = FormCore.checkIndexes(struct);
+    this.fields.forEach((_, key) => {
+      if (!keys.includes(key)) {
+        this.fields.get(key)?.destroyField();
+        this.fields.delete(key);
+      }
+    });
+    this.subscribeTemplates();
+    //@TODO bruteforce way, need to optimize
+    this.subscribedTemplates.forEach((el) => {
+      el.originFieldKeys.forEach((field) => {
+        this.templateSubject$.next({ key: field });
       });
-    }
+    });
+    // this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
+  }
+
+  getField({ key }: { key: string }) {
+    return this.fields.get(key);
   }
 
   printValues() {

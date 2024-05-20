@@ -105,12 +105,20 @@ class FormCore {
         ...(field[property as keyof IFormField] as object),
       };
       set(propState, path, value);
-      field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
-        propState as never;
+      field[
+        property as keyof Omit<
+          IFormField,
+          'stateValue' | 'errorsString' | 'valid'
+        >
+      ] = propState as never;
       return;
     }
-    field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
-      value as never;
+    field[
+      property as keyof Omit<
+        IFormField,
+        'stateValue' | 'errorsString' | 'valid'
+      >
+    ] = value as never;
     return;
   }
 
@@ -278,6 +286,13 @@ class FormCore {
     });
   }
 
+  get isValid(): boolean {
+    for (let [, field] of this.fields) {
+      if (!field.valid) return false;
+    }
+    return true;
+  }
+
   resetValue(event: TEvents, key: string) {
     const field = this.fields.get(key);
     const structResetValue = field?.resetValues?.[event];
@@ -340,12 +355,17 @@ class FormCore {
         );
       } else {
         currField.children =
-        structElement?.children?.map((el) => el.name) || currField?.children || [];
+          structElement?.children?.map((el) => el.name) ||
+          currField?.children ||
+          [];
         currField.path = path;
         currField.templateSubject$ = this.templateSubject$;
       }
       if (structElement.children) {
-        return this.serializeStructure(structElement.children, `${path ? `${path}.` : ``}${structElement.name}`)
+        return this.serializeStructure(
+          structElement.children,
+          `${path ? `${path}.` : ``}${structElement.name}`
+        );
       }
     });
   }

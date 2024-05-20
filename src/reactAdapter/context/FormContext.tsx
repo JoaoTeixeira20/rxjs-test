@@ -8,13 +8,13 @@ import {
   useContext,
   useRef,
 } from 'react';
-import { BuildTree } from '../generators/formBuilder';
+// import { BuildTree } from '../generators/formBuilder';
 import { ISchema } from '@/interfaces/schema';
 
 type TFormContext = {
   formInstance: TFormCore;
-  schema: ISchema;
-  tree: ReactElement;
+  schema?: ISchema;
+  // tree: ReactElement;
   mappers: TMapper[];
   printValues: () => void;
   printInstance: () => void;
@@ -22,15 +22,17 @@ type TFormContext = {
 };
 
 type TFormContextProvider = {
-  schema: ISchema;
+  schema?: ISchema;
   mappers: TMapper[];
   initialValues?: Record<string, unknown>;
 };
 
 let context: TFormContext;
 
+/** @deprecated */
 const FormContext = createContext<TFormContext>({} as TFormContext);
 
+/** @deprecated */
 const FormContextProvider = ({
   children,
   schema,
@@ -38,12 +40,12 @@ const FormContextProvider = ({
   initialValues,
 }: PropsWithChildren<TFormContextProvider>): ReactElement => {
   const formInstance = useRef<TFormCore>(
-    new FormCore({ schema, initialValues })
+    new FormCore({ schema: schema ? [schema] : [], initialValues })
   );
 
-  const tree = useRef<ReactElement>(
-    BuildTree(formInstance.current.fields, mappers)
-  );
+  // const tree = useRef<ReactElement>(
+  //   BuildTree(formInstance.current.fields, mappers)
+  // );
 
   const printValues = () => {
     formInstance.current.printValues();
@@ -63,7 +65,7 @@ const FormContextProvider = ({
     formInstance: formInstance.current,
     getFieldInstance,
     schema,
-    tree: tree.current,
+    // tree: tree.current,
     mappers,
     printValues,
     printInstance,
@@ -74,6 +76,7 @@ const FormContextProvider = ({
   );
 };
 
+/** @deprecated */
 const useFormContext = (): TFormContext => {
   context = useContext(FormContext);
 

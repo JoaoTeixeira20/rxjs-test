@@ -1,6 +1,6 @@
 import { ISchema } from '@/interfaces/schema';
 
-const schema: ISchema = {
+const schema: ISchema[] = [{
   component: 'div',
   name: 'container',
   props: {
@@ -216,6 +216,6 @@ const schema: ISchema = {
       }
     },
   ],
-};
+}];
 
 export { schema };

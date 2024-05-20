@@ -40,7 +40,7 @@ const FormContextProvider = ({
   initialValues,
 }: PropsWithChildren<TFormContextProvider>): ReactElement => {
   const formInstance = useRef<TFormCore>(
-    new FormCore({ schema, initialValues })
+    new FormCore({ schema: schema ? [schema] : [], initialValues })
   );
 
   // const tree = useRef<ReactElement>(

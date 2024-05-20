@@ -29,13 +29,13 @@ const FormTestComponent = (): ReactElement => {
   return (
     <>
       <button onClick={printFormGroupInstance}>print groupInstance</button>
-      <button onClick={() => console.log(getForm({ key: 'bar' }))}>
-        print bar formInstance
+      <button onClick={() => console.log(getForm({ key: 'foo' }))}>
+        print foo formInstance
       </button>
-      <button onClick={() => getForm({ key: 'bar' })?.printValues()}>
-        print bar values
+      <button onClick={() => getForm({ key: 'foo' })?.printValues()}>
+        print foo values
       </button>
-      {/* <Form
+      <Form
         index='foo'
         schema={schema}
         initialValues={{
@@ -44,8 +44,8 @@ const FormTestComponent = (): ReactElement => {
           baz: 'baz',
         }}
       >
-      </Form> */}
-      <Form index='bar'>
+      </Form>
+      {/* <Form index='bar'>
         <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
           <AsFormField
             component='libinput'
@@ -81,9 +81,9 @@ const FormTestComponent = (): ReactElement => {
               ))}
           </AsFormField>
         </AsFormField>
-      </Form>
+      </Form> 
       <button onClick={handleAdd}>add field</button>
-      <button onClick={handleRemove}>add field</button>
+      <button onClick={handleRemove}>remove field</button> */}
     </>
   );
 };

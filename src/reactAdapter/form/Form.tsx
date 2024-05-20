@@ -10,7 +10,7 @@ const Form = ({
   initialValues,
   children,
 }: PropsWithChildren<{
-  schema?: ISchema;
+  schema?: ISchema[];
   index: string;
   initialValues?: Record<string, unknown>;
 }>) => {
@@ -25,8 +25,8 @@ const Form = ({
   }, []);
 
   useEffect(() => {
-    const res = BuildAsFormFieldTree({ children });
-    res?.[0] && getForm({ key: index })!.refreshFields(res?.[0]);
+    const schema = BuildAsFormFieldTree({ children });
+    schema?.[0] && getForm({ key: index })!.refreshFields(schema);
 
     const fields = getForm({ key: index })?.fields;
     fields &&

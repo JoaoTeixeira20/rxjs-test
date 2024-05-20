@@ -1,4 +1,4 @@
-import { ICurrencyCode } from '@/helpers/currencyCode';
+import { TCurrencyCode, TCurrencyLocalCode } from '@gaignoux/currency';
 import { OutgoingHttpHeaders } from 'http2';
 import { TEvents } from './eventTypes';
 
@@ -21,6 +21,10 @@ type TBetweenValidation = {
   end: number;
 };
 type TCreditCardMatch = { numberCard: string; availableOptions: string[] };
+type TDocumentValidation = {
+  type: 'NIF' | 'NIE' | 'CIF' | 'IBAN';
+  locale?: TCurrencyLocalCode;
+};
 
 type TValidationMethods = {
   max?: number;
@@ -45,6 +49,7 @@ type TValidationMethods = {
   isCreditCard?: string[];
   isCreditCodeMatch?: TCreditCardMatch;
   isCreditCardAndLength?: string[];
+  document?: TDocumentValidation;
 };
 
 // Formatter types
@@ -79,7 +84,7 @@ type TCurrencyMask = {
   align?: 'left' | 'right';
   decimal?: string;
   precision?: number;
-  prefix?: ICurrencyCode;
+  prefix?: TCurrencyCode;
   thousands?: string;
 };
 type TMaskGeneric = {
@@ -91,6 +96,7 @@ type TMaskGeneric = {
 type TMasks = {
   currency?: TCurrencyMask;
   generic?: TMaskGeneric[];
+  custom?: string;
   secureCreditCard?: boolean;
   card?: boolean;
   cardDate?: boolean;
@@ -116,17 +122,11 @@ type TApiConfig = {
 
 type TProps = Record<string, unknown>;
 
-type TValidations = Partial<
-  Record<TEvents, TValidationMethods>
->;
+type TValidations = Partial<Record<TEvents, TValidationMethods>>;
 
-type TVisibilityContitions = Partial<
-  Record<TEvents, TVisibility[]>
->;
+type TVisibilityContitions = Partial<Record<TEvents, TVisibility[]>>;
 
-type TResetValues = Partial<
-  Record<TEvents, TResetValueMethods[]>
->;
+type TResetValues = Partial<Record<TEvents, TResetValueMethods[]>>;
 
 type TErrorMessages = Partial<Record<keyof TValidationMethods, string>>;
 

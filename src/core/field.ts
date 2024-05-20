@@ -1,4 +1,3 @@
-import { validations } from '@/core/validations/validations';
 import {
   combineLatest,
   debounceTime,
@@ -11,7 +10,6 @@ import {
 import { makeRequest } from '@/helpers/helpers';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import { formatters } from './formatters/formatters';
 import isEqual from 'lodash/isEqual';
 import {
   TApi,
@@ -28,7 +26,9 @@ import {
 import { ISchema } from '@/interfaces/schema';
 import { IState } from '@/interfaces/state';
 import { TEvents } from '@/types/eventTypes';
-import { masks } from '@/core/masks/masks';
+import { formatters } from '@/core/formatters/handler';
+import { masks } from '@/core/masks/handler';
+import { validations } from '@/core/validations/handler';
 
 class FormField {
   name: string;

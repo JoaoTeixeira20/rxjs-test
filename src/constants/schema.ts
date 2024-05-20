@@ -202,7 +202,7 @@ const schema: ISchema = {
     },
     {
       component: 'libinput',
-      name: 'Price',
+      name: 'Price mask',
       props: {
         label: 'Set your price',
       },
@@ -211,9 +211,22 @@ const schema: ISchema = {
       },
       masks: {
         currency: {
-          prefix: 'EUR'
-        }
-      }
+          prefix: 'EUR',
+        },
+      },
+    },
+    {
+      component: 'libinput',
+      name: 'Custom mask',
+      props: {
+        label: 'Set your custom mask',
+      },
+      formatters: {
+        onlyNumbers: true,
+      },
+      masks: {
+        custom: '(##) ##### - ####',
+      },
     },
   ],
 };

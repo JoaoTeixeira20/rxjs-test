@@ -105,12 +105,20 @@ class FormCore {
         ...(field[property as keyof IFormField] as object),
       };
       set(propState, path, value);
-      field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
-        propState as never;
+      field[
+        property as keyof Omit<
+          IFormField,
+          'stateValue' | 'errorsString' | 'valid'
+        >
+      ] = propState as never;
       return;
     }
-    field[property as keyof Omit<IFormField, 'stateValue' | 'errorsString'>] =
-      value as never;
+    field[
+      property as keyof Omit<
+        IFormField,
+        'stateValue' | 'errorsString' | 'valid'
+      >
+    ] = value as never;
     return;
   }
 
@@ -278,7 +286,7 @@ class FormCore {
     });
   }
 
-  validate(): boolean {
+  get isValid(): boolean {
     for (let [, field] of this.fields) {
       if (!field.valid) return false;
     }

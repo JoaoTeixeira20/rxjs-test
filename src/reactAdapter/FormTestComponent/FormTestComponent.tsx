@@ -35,7 +35,7 @@ const FormTestComponent = (): ReactElement => {
       <button onClick={() => getForm({ key: 'foo' })?.printValues()}>
         print foo values
       </button>
-      <button onClick={() => console.log(getForm({ key: 'foo' })?.validate())}>
+      <button onClick={() => console.log(getForm({ key: 'foo' })?.isValid)}>
         print foo validate
       </button>
 

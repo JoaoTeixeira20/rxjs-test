@@ -177,10 +177,6 @@ class FormField {
     return this._valid;
   }
 
-  set valid(valid: boolean) {
-    this._valid = valid;
-  }
-
   set errors(errors: TErrorList) {
     if (typeof errors === 'undefined' || isEqual(errors, this.errors)) return;
     this._errors = errors;

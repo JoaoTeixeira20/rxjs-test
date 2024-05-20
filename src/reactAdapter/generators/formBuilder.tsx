@@ -68,12 +68,19 @@ const BuildTree = (
   const mapper =
     prevKey &&
     mappers.find((el) => el.componentName === fields.get(prevKey)!.component);
-    
+
   return mapper ? (
     <FieldWrapper
       Component={mapper.component}
       index={prevKey}
       valueChangeEvent={mapper.valueChangeEvent}
+      onChange={mapper.events?.getValue}
+      onBlur={mapper.events?.onBlur}
+      onFocus={mapper.events?.onFocus}
+      onClick={mapper.events?.onClick}
+      onKeyUp={mapper.events?.onKeyUp}
+      onKeyDown={mapper.events?.onKeyDown}
+      value={mapper.events?.setValue}
       key={prevKey}
     />
   ) : (

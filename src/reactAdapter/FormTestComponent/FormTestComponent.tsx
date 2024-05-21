@@ -3,6 +3,7 @@ import Form from '../form/Form';
 import { schema } from '@/constants/schema';
 import { useFormGroupContext } from '../context/FormGroupContext';
 import AsFormField from '../AsFormField/AsFormField';
+import { TFormValues } from '@/types/formTypes';
 // import FieldWrapper from '../fieldWrapper/FieldWrapper';
 
 const FormTestComponent = (): ReactElement => {
@@ -50,11 +51,10 @@ const FormTestComponent = (): ReactElement => {
           bal: 'bal',
           baz: 'baz',
         }}
-        onSubmit={() => {
-          console.log('onsubmit');
+        onSubmit={(data: TFormValues) => {
+          console.log('onsubmit', data);
         }}
-      >
-      </Form>
+      ></Form>
       {/* <Form index='bar'>
         <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
           <AsFormField

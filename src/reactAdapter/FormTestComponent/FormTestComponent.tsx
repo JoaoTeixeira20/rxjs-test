@@ -50,7 +50,7 @@ const FormTestComponent = (): ReactElement => {
       <button onClick={() => console.log(getForm({ key: 'foo' })?.isValid)}>
         print foo validate
       </button>
-      {/* <Form
+      <Form
         index='foo'
         schema={schema}
         initialValues={{
@@ -58,10 +58,14 @@ const FormTestComponent = (): ReactElement => {
           bal: 'bal',
           baz: 'baz',
         }}
-      ></Form> */}
-      <Form index='bar'>
-      <AsFormField component='libinput' name='testinputoutside' props={{label: 'testinput'}}></AsFormField>
-        {/* <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
+      ></Form>
+      {/* <Form index='bar'>
+        <AsFormField
+          component='libinput'
+          name='testinputoutside'
+          props={{ label: 'testinput' }}
+        ></AsFormField>
+        <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
           <AsFormField
             component='libinput'
             name='bar'
@@ -95,8 +99,8 @@ const FormTestComponent = (): ReactElement => {
                 />
               ))}
           </AsFormField>
-        </AsFormField> */}
-      </Form> 
+        </AsFormField>
+      </Form> */}
       <button onClick={handleAdd}>add field</button>
       <button onClick={handleRemove}>remove field</button>
     </>

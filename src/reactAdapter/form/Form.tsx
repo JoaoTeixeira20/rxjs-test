@@ -1,6 +1,12 @@
 import { IFormSchema } from '@/interfaces/schema';
 import { BuildAsFormFieldTree, BuildTree } from '../generators/formBuilder';
-import { PropsWithChildren, ReactElement, useEffect, useState } from 'react';
+import {
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useFormGroupContext } from '../context/FormGroupContext';
 import FormCore from '@/core/form';
 
@@ -17,11 +23,14 @@ const Form = ({
   } & Omit<IFormSchema, 'components'>
 >) => {
   const { addForm, removeForm, getForm, mappers } = useFormGroupContext();
-  const [tree, setTree] = useState<ReactElement>();
+  const [tree, setTree] = useState<ReactNode>();
+  const schemaIndex = useMemo(
+    () => index || schema?.index || 'defaultChange',
+    [index, schema]
+  );
 
   useEffect(() => {
-    const formIndex = index || schema?.index || 'defaultChange';
-    if (formIndex === 'defaultChange') {
+    if (schemaIndex === 'defaultChange') {
       console.warn(
         'please, add an unique id to the form, otherwise multiple forms will break'
       );
@@ -31,9 +40,9 @@ const Form = ({
       initialValues: initialValues || schema?.initialValues,
       action: action || schema?.action,
       method: method || schema?.method,
-      index: formIndex,
+      index: schemaIndex,
     });
-    addForm({ key: formIndex, formInstance });
+    addForm({ key: schemaIndex, formInstance });
     return () => removeForm({ key: index });
   }, []);
 
@@ -42,19 +51,22 @@ const Form = ({
     schema && getForm({ key: index })!.refreshFields(schema);
 
     const fields = getForm({ key: index })?.fields;
-    fields &&
-      setTree(
-        BuildTree({
-          fields,
-          mappers,
-          formKey: index,
-        })
-      );
+    if (fields) {
+      const buildTree = BuildTree({
+        fields,
+        mappers,
+        formKey: index,
+      });
+      // console.log(buildTree);
+      setTree(buildTree);
+    }
   }, [children]);
 
   return (
     <form>
-      <b style={{ padding: '0px', margin: '0px' }}>{`form index:${index}`}</b>
+      <b
+        style={{ padding: '0px', margin: '0px' }}
+      >{`form index:${schemaIndex}`}</b>
       <br></br>
       {tree && tree}
     </form>

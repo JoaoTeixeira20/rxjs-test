@@ -7,6 +7,7 @@ type TEvents =
   | 'ON_FIELD_CLICK'
   | 'ON_FIELD_KEYUP'
   | 'ON_FIELD_KEYDOWN'
-  | 'ON_FIELD_BINDED';
+  | 'ON_FIELD_BINDED'
+  | 'ON_FORM_SUBMIT';
 
 export { TEvents };

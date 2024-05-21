@@ -3,6 +3,7 @@ import Form from '../form/Form';
 import { schema } from '@/constants/schema';
 import { useFormGroupContext } from '../context/FormGroupContext';
 import AsFormField from '../AsFormField/AsFormField';
+import { TFormValues } from '@/types/formTypes';
 // import FieldWrapper from '../fieldWrapper/FieldWrapper';
 
 const FormTestComponent = (): ReactElement => {
@@ -38,6 +39,9 @@ const FormTestComponent = (): ReactElement => {
       <button onClick={() => console.log(getForm({ key: 'foo' })?.isValid)}>
         print foo validate
       </button>
+      <button onClick={() => getForm({ key: 'foo' })?.submit()}>
+        check submit
+      </button>
 
       <Form
         index='foo'
@@ -47,8 +51,10 @@ const FormTestComponent = (): ReactElement => {
           bal: 'bal',
           baz: 'baz',
         }}
-      >
-      </Form>
+        onSubmit={(data: TFormValues) => {
+          console.log('onsubmit', data);
+        }}
+      ></Form>
       {/* <Form index='bar'>
         <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
           <AsFormField

@@ -3,23 +3,29 @@ import { BuildAsFormFieldTree, BuildTree } from '../generators/formBuilder';
 import { PropsWithChildren, ReactElement, useEffect, useState } from 'react';
 import { useFormGroupContext } from '../context/FormGroupContext';
 import FormCore from '@/core/form';
+import { TFormValues } from '@/types/formTypes';
 
 const Form = ({
   schema,
   index,
   initialValues,
+  onSubmit,
   children,
 }: PropsWithChildren<{
   schema?: ISchema[];
   index: string;
   initialValues?: Record<string, unknown>;
+  onSubmit?: (data: TFormValues) => void;
 }>) => {
-  const { addForm, removeForm, getForm, mappers } =
-    useFormGroupContext();
+  const { addForm, removeForm, getForm, mappers } = useFormGroupContext();
   const [tree, setTree] = useState<ReactElement>();
 
   useEffect(() => {
-    const formInstance = new FormCore({ schema: schema, initialValues });
+    const formInstance = new FormCore({
+      schema: schema,
+      initialValues,
+      onSubmit,
+    });
     addForm({ key: index, formInstance });
     return () => removeForm({ key: index });
   }, []);

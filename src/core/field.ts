@@ -276,7 +276,7 @@ class FormField {
             // setting valid flag
             valid = !error && valid;
             // setting error messages
-            if (event === schemaEvent) {
+            if (event === schemaEvent || event === 'ON_FORM_SUBMIT') {
               if (error && this.errorMessages?.[validationKey]) {
                 errors[validationKey] = this.errorMessages[validationKey];
               } else {

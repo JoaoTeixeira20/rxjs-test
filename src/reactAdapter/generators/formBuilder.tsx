@@ -85,6 +85,13 @@ const BuildTree = ({
       Component={mapper.component}
       index={prevKey}
       valueChangeEvent={mapper.valueChangeEvent}
+      onChange={mapper.events?.getValue}
+      onBlur={mapper.events?.onBlur}
+      onFocus={mapper.events?.onFocus}
+      onClick={mapper.events?.onClick}
+      onKeyUp={mapper.events?.onKeyUp}
+      onKeyDown={mapper.events?.onKeyDown}
+      value={mapper.events?.setValue}
       key={prevKey}
       formKey={formKey}
     />

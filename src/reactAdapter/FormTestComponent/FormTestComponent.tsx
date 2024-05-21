@@ -11,11 +11,23 @@ const FormTestComponent = (): ReactElement => {
 
   useEffect(() => {
     getForm({ key: 'foo' })
-      ?.fields.get('name')
+      ?.getField({ key: 'name' })
       ?.emitValue({ value: '123456', event: 'ON_FIELD_CHANGE' });
     console.log(
       `value from name: ${getForm({ key: 'foo' })?.fields.get('name')?.value}`
     );
+
+    const sub = getForm({ key: 'foo' })
+      ?.getField({ key: 'provinces' })
+      ?.propsSubject$.subscribe((props) => {
+        // props?.optionList?.[0]?.id &&
+        getForm({ key: 'foo' })?.getField({ key: 'provinces' })?.emitValue({
+          // @ts-ignore
+          value: props?.optionList?.[0]?.id,
+          event: 'ON_FIELD_CHANGE',
+        });
+      });
+    return () => sub?.unsubscribe();
   }, []);
 
   const handleAdd = () => {
@@ -35,7 +47,7 @@ const FormTestComponent = (): ReactElement => {
       <button onClick={() => getForm({ key: 'foo' })?.printValues()}>
         print foo values
       </button>
-      <Form
+      {/* <Form
         index='foo'
         schema={schema}
         initialValues={{
@@ -43,10 +55,10 @@ const FormTestComponent = (): ReactElement => {
           bal: 'bal',
           baz: 'baz',
         }}
-      >
-      </Form>
-      {/* <Form index='bar'>
-        <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
+      ></Form> */}
+      <Form index='bar'>
+      <AsFormField component='libinput' name='testinputoutside' props={{label: 'testinput'}}></AsFormField>
+        {/* <AsFormField component='div' name='foo' props={{ label: 'foo' }}>
           <AsFormField
             component='libinput'
             name='bar'
@@ -80,10 +92,10 @@ const FormTestComponent = (): ReactElement => {
                 />
               ))}
           </AsFormField>
-        </AsFormField>
+        </AsFormField> */}
       </Form> 
       <button onClick={handleAdd}>add field</button>
-      <button onClick={handleRemove}>remove field</button> */}
+      <button onClick={handleRemove}>remove field</button>
     </>
   );
 };

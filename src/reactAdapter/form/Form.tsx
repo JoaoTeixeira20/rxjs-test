@@ -1,6 +1,12 @@
-import { ISchema } from '@/interfaces/schema';
+import { IFormSchema } from '@/interfaces/schema';
 import { BuildAsFormFieldTree, BuildTree } from '../generators/formBuilder';
-import { PropsWithChildren, ReactElement, useEffect, useState } from 'react';
+import {
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useFormGroupContext } from '../context/FormGroupContext';
 import FormCore from '@/core/form';
 import { TFormValues } from '@/types/formTypes';
@@ -9,45 +15,62 @@ const Form = ({
   schema,
   index,
   initialValues,
+  action,
+  method,
   onSubmit,
   children,
-}: PropsWithChildren<{
-  schema?: ISchema[];
-  index: string;
-  initialValues?: Record<string, unknown>;
-  onSubmit?: (data: TFormValues) => void;
-}>) => {
+}: PropsWithChildren<
+  {
+    schema?: IFormSchema;
+    onSubmit?: (data: TFormValues) => void;
+  } & Omit<IFormSchema, 'components'>
+>) => {
   const { addForm, removeForm, getForm, mappers } = useFormGroupContext();
-  const [tree, setTree] = useState<ReactElement>();
+  const [tree, setTree] = useState<ReactNode>();
+  const schemaIndex = useMemo(
+    () => index || schema?.index || 'defaultChange',
+    [index, schema]
+  );
 
   useEffect(() => {
+    if (schemaIndex === 'defaultChange') {
+      console.warn(
+        'please, add an unique id to the form, otherwise multiple forms will break'
+      );
+    }
     const formInstance = new FormCore({
-      schema: schema,
-      initialValues,
+      schema,
+      initialValues: initialValues || schema?.initialValues,
+      action: action || schema?.action,
+      method: method || schema?.method,
+      index: schemaIndex,
       onSubmit,
     });
-    addForm({ key: index, formInstance });
+    addForm({ key: schemaIndex, formInstance });
     return () => removeForm({ key: index });
   }, []);
 
   useEffect(() => {
     const schema = BuildAsFormFieldTree({ children });
-    schema?.[0] && getForm({ key: index })!.refreshFields(schema);
+    schema && getForm({ key: index })!.refreshFields(schema);
 
     const fields = getForm({ key: index })?.fields;
-    fields &&
-      setTree(
-        BuildTree({
-          fields,
-          mappers,
-          formKey: index,
-        })
-      );
+    if (fields) {
+      const buildTree = BuildTree({
+        fields,
+        mappers,
+        formKey: index,
+      });
+      // console.log(buildTree);
+      setTree(buildTree);
+    }
   }, [children]);
 
   return (
     <form>
-      <b style={{ padding: '0px', margin: '0px' }}>{`form index:${index}`}</b>
+      <b
+        style={{ padding: '0px', margin: '0px' }}
+      >{`form index:${schemaIndex}`}</b>
       <br></br>
       {tree && tree}
     </form>

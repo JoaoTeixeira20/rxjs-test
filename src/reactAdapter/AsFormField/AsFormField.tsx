@@ -1,8 +1,8 @@
-import { ISchema } from '@/interfaces/schema';
+import { IComponentSchema } from '@/interfaces/schema';
 import { PropsWithChildren, ReactElement } from 'react';
 
 const AsFormField = (
-  props: PropsWithChildren<Omit<ISchema, 'children'>>
+  props: PropsWithChildren<Omit<IComponentSchema, 'children'>>
 ): ReactElement => {
   return <>{props.children}</>;
 };

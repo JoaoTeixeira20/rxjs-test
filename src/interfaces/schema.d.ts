@@ -10,8 +10,8 @@ import {
   TVisibilityContitions,
 } from '@/types/schemaTypes';
 
-interface ISchema {
-  component: TComponents;
+interface IComponentSchema {
+  component: string;
   props: TProps;
   name: string;
   validations?: TValidations;
@@ -24,4 +24,12 @@ interface ISchema {
   children?: ISchema[];
 }
 
-export { ISchema };
+interface IFormSchema {
+  index: string;
+  action?: string;
+  method?: string;
+  initialValues?: Record<string, unknown>;
+  components?: IComponentSchema[];
+}
+
+export { IFormSchema, IComponentSchema };

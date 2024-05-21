@@ -4,7 +4,7 @@ import { traverseObject } from '@/helpers/helpers';
 import { Subject } from 'rxjs';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import { ISchema } from '@/interfaces/schema';
+import { IComponentSchema, IFormSchema } from '@/interfaces/schema';
 import { TValidationMethods } from '@/types/schemaTypes';
 import { TSubscribedTemplates } from '@/types/templateTypes';
 import { isEqual } from 'lodash';
@@ -12,30 +12,34 @@ import { TEvents } from '@/types/eventTypes';
 import { TFormValues } from '@/types/formTypes';
 
 class FormCore {
-  schema?: ISchema[];
+  schema?: IFormSchema;
   fields: Map<string, IFormField>;
   initialValues?: Record<string, unknown>;
   templateSubject$: Subject<{ key: string }>;
   subscribedTemplates: TSubscribedTemplates[];
   onSubmit?: (data: TFormValues) => void;
-
+  action?: string;
+  method?: string;
   constructor({
     schema,
     initialValues,
+    action,
+    method,
     onSubmit,
   }: {
-    schema?: ISchema[];
-    initialValues?: Record<string, unknown>;
+    schema?: IFormSchema;
     onSubmit?: (data: TFormValues) => void;
-  }) {
+  } & Omit<IFormSchema, 'components'>) {
     this.schema = schema;
     this.fields = new Map();
-    this.initialValues = initialValues;
     this.onSubmit = onSubmit;
-    this.schema && FormCore.checkIndexes(this.schema);
+    this.initialValues = initialValues || schema?.initialValues;
+    this.action = action || schema?.action;
+    this.method = method || schema?.method;
+    this.schema && FormCore.checkIndexes(this.schema.components);
     this.templateSubject$ = new Subject();
     this.subscribedTemplates = [];
-    this.schema && this.serializeStructure(this.schema);
+    this.schema && this.serializeStructure(this.schema.components);
     this.schema && this.subscribeTemplates();
     this.templateSubject$.subscribe(this.refreshTemplates.bind(this));
   }
@@ -248,9 +252,10 @@ class FormCore {
   }
 
   private static checkIndexes = (
-    struct: ISchema[],
+    struct?: IComponentSchema[],
     indexes: string[] = []
   ): string[] => {
+    if (!struct) return indexes;
     struct.forEach((structElement) => {
       indexes.push(structElement.name);
       if (structElement.children) {
@@ -341,7 +346,8 @@ class FormCore {
     });
   }
 
-  serializeStructure(struct: ISchema[], path?: string): void {
+  serializeStructure(struct?: IComponentSchema[], path?: string): void {
+    if (!struct) return;
     struct.forEach((structElement) => {
       const currField = this.fields.get(structElement.name);
       if (!currField) {
@@ -376,7 +382,7 @@ class FormCore {
     });
   }
 
-  refreshFields(struct: ISchema[]) {
+  refreshFields(struct: IComponentSchema[]) {
     this.serializeStructure(struct);
     const keys = FormCore.checkIndexes(struct);
     this.fields.forEach((_, key) => {

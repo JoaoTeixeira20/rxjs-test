@@ -23,12 +23,12 @@ import {
   TValidations,
   TVisibilityContitions,
 } from '@/types/schemaTypes';
-import { ISchema } from '@/interfaces/schema';
 import { IState } from '@/interfaces/state';
 import { TEvents } from '@/types/eventTypes';
 import { formatters } from '@/core/formatters/handler';
 import { masks } from '@/core/masks/handler';
 import { validations } from '@/core/validations/handler';
+import { IComponentSchema } from '@/interfaces/schema';
 
 class FormField {
   name: string;
@@ -44,14 +44,14 @@ class FormField {
   formatters?: TFormatters;
   masks?: TMasks;
   // variable properties
-  _props: Record<string, unknown>;
-  _value: unknown;
-  _stateValue: unknown;
-  _visibility: boolean;
-  _errors: TErrorList;
-  _errorsString: string;
-  _apiResponseData: { response: unknown };
-  _valid: boolean;
+  private _props: Record<string, unknown>;
+  private _value: unknown;
+  private _stateValue: unknown;
+  private _visibility: boolean;
+  private _errors: TErrorList;
+  private _errorsString: string;
+  private _apiResponseData: { response: unknown };
+  private _valid: boolean;
   // subjects/observables
   propsSubject$: Subject<Record<string, unknown>>;
   errorSubject$: Subject<string[]>;
@@ -75,7 +75,7 @@ class FormField {
     initialValue,
     templateSubject$,
   }: {
-    schemaComponent: ISchema;
+    schemaComponent: IComponentSchema;
     path?: string;
     children: string[];
     validateVisibility: (event: TEvents, key: string) => void;

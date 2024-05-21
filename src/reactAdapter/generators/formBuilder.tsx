@@ -1,13 +1,13 @@
-import { Children, ReactElement, ReactNode, useEffect } from 'react';
+import { Children, ReactElement, ReactNode } from 'react';
 import FieldWrapper from '../fieldWrapper/FieldWrapper';
 import { IFormField } from '@/core/field';
 import { TMapper } from '../mappers/mappers';
-import { ISchema } from '@/interfaces/schema';
+import { IComponentSchema, IFormSchema } from '@/interfaces/schema';
 
 /**
  * @deprecated Use BuildTree instead
  */
-const BuildReactTreeFromSchema = (schema: ISchema): ReactElement => {
+const BuildReactTreeFromSchema = (schema: IFormSchema): ReactElement => {
   return <div>deprecated</div>;
 };
 // const BuildReactTreeFromSchema = (schema: ISchema): ReactElement => {
@@ -37,81 +37,69 @@ const BuildReactTreeFromSchema = (schema: ISchema): ReactElement => {
 const BuildTree = ({
   fields,
   mappers,
-  prevKey,
+  prevPath,
   formKey,
 }: {
   fields: Map<string, IFormField>;
   mappers: TMapper[];
-  prevKey?: string;
+  prevPath?: string;
   formKey: string;
-}): ReactElement => {
-  if (!prevKey) {
-    for (const [_, field] of fields) {
-      if (!field.path) {
-        return BuildTree({ fields, mappers, prevKey: field.name, formKey });
-      }
-    }
-  }
+}): ReactNode => {
+  return Array.from(fields)
+    .filter(([, value]) => {
+      return value.path === prevPath;
+    })
+    .map(([, value]) => {
+      const fieldName = value.name;
 
-  const children =
-    prevKey && fields.has(prevKey) && fields.get(prevKey)!.children;
-  if (children && children.length > 0) {
-    const mapper = mappers.find(
-      (el) => el.componentName === fields.get(prevKey)!.component
-    );
+      const mapper = mappers.find(
+        (el) => el.componentName === fields.get(fieldName)!.component
+      );
 
-    return mapper ? (
-      <FieldWrapper
-        Component={mapper.component}
-        index={prevKey}
-        valueChangeEvent={mapper.valueChangeEvent}
-        key={prevKey}
-        formKey={formKey}
-      >
-        {children.map((key) =>
-          BuildTree({ fields, mappers, prevKey: key, formKey })
-        )}
-      </FieldWrapper>
-    ) : (
-      <div>{`error rendering field ${prevKey} :(`}</div>
-    );
-  }
-  const mapper =
-    prevKey &&
-    mappers.find((el) => el.componentName === fields.get(prevKey)!.component);
+      const children = BuildTree({
+        fields,
+        mappers,
+        prevPath: `${prevPath ? `${prevPath}.` : ``}${value.name}`,
+        formKey,
+      });
 
-  return mapper ? (
-    <FieldWrapper
-      Component={mapper.component}
-      index={prevKey}
-      valueChangeEvent={mapper.valueChangeEvent}
-      onChange={mapper.events?.getValue}
-      onBlur={mapper.events?.onBlur}
-      onFocus={mapper.events?.onFocus}
-      onClick={mapper.events?.onClick}
-      onKeyUp={mapper.events?.onKeyUp}
-      onKeyDown={mapper.events?.onKeyDown}
-      value={mapper.events?.setValue}
-      key={prevKey}
-      formKey={formKey}
-    />
-  ) : (
-    <div>{`error rendering field ${prevKey} :(`}</div>
-  );
+      const lenght = Children.count(children);
+
+      return mapper ? (
+          <FieldWrapper
+            Component={mapper.component}
+            index={fieldName}
+            valueChangeEvent={mapper.valueChangeEvent}
+            onChange={mapper.events?.getValue}
+            onBlur={mapper.events?.onBlur}
+            onFocus={mapper.events?.onFocus}
+            onClick={mapper.events?.onClick}
+            onKeyUp={mapper.events?.onKeyUp}
+            onKeyDown={mapper.events?.onKeyDown}
+            value={mapper.events?.setValue}
+            key={fieldName}
+            formKey={formKey}
+          >
+            {lenght > 0 ? children : null}
+          </FieldWrapper>
+        ) : (
+        <div>{`failed to render field on tree, check mappers.. :(`}</div>
+      );
+    });
 };
 
 const BuildAsFormFieldTree = ({
   children,
 }: {
   children?: ReactNode | undefined;
-}): ISchema[] | undefined => {
+}): IComponentSchema[] | undefined => {
   //@ts-ignore
   return Children.map(children, (child: JSX.Element, index) => {
     if (!child?.type?.name || child.type.name !== 'AsFormField') {
       throw new Error('only use AsFormField inside the Form component');
       // console.log(child.type.name);
     }
-    const struct = { ...child.props } as ISchema;
+    const struct = { ...child.props } as IComponentSchema;
     delete struct.children;
 
     const childElements = BuildAsFormFieldTree({
@@ -124,22 +112,5 @@ const BuildAsFormFieldTree = ({
     };
   });
 };
-
-// const RenderSchema = () => {
-//   const { printValues, printInstance, tree, getFieldInstance } =
-//     useFormContext();
-//   // const reactTree = BuildReactTreeFromSchema(schema);
-//   // const reactTree = BuildTree(formInstance.fields, mappers);
-
-//   return (
-//     <>
-//       <button onClick={printValues}>print values</button>
-//       <button onClick={printInstance}>print instance</button>
-//       <form>{tree}</form>
-//     </>
-//   );
-// };
-
-// export default RenderSchema;
 
 export { BuildTree, BuildAsFormFieldTree };

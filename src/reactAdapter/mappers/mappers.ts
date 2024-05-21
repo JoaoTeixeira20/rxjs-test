@@ -21,7 +21,7 @@ type TComponentPropsMapping = {
 type TMapper = {
   component: ElementType;
   componentName: string;
-  events?: TComponentPropsMapping
+  events?: TComponentPropsMapping;
   valueChangeEvent?: (
     event: unknown
   ) => unknown | { _value: unknown; _stateValue: unknown };
@@ -35,7 +35,8 @@ const mappers: TMapper[] = [
       getValue: 'onChange2',
       onBlur: 'onBlur2',
       onFocus: 'onFocus2',
-    }
+      setValue: 'value',
+    },
   },
   {
     component: Container,
@@ -47,7 +48,8 @@ const mappers: TMapper[] = [
     events: {
       getValue: 'onChange',
       onBlur: 'onBlur',
-    }
+      setValue: 'value',
+    },
   },
   {
     component: Dropdown,
@@ -57,11 +59,19 @@ const mappers: TMapper[] = [
       label: string;
       value: string;
     }) => ({ _value: event.value, _stateValue: event.id }),
+    events: {
+      getValue: 'onChange',
+      setValue: 'value',
+    },
   },
   {
     component: DatePicker,
     componentName: 'datepicker',
     valueChangeEvent: (event: string) => event,
+    events: {
+      getValue: 'onChange',
+      setValue: 'value',
+    },
   },
 ];
 

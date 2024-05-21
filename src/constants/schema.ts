@@ -1,6 +1,8 @@
-import { ISchema } from '@/interfaces/schema';
+import { IFormSchema } from '@/interfaces/schema';
 
-const schema: ISchema[] = [{
+const schema: IFormSchema = {
+  index: 'foo',
+  components:[{
   component: 'div',
   name: 'container',
   props: {
@@ -229,6 +231,7 @@ const schema: ISchema[] = [{
       },
     },
   ],
-}];
+}]
+};
 
 export { schema };

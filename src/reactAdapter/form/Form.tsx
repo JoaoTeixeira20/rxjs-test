@@ -8,18 +8,20 @@ const Form = ({
   schema,
   index,
   initialValues,
+  onSubmit,
   children,
 }: PropsWithChildren<{
   schema?: ISchema[];
   index: string;
   initialValues?: Record<string, unknown>;
+  onSubmit?: () => void;
 }>) => {
   const { addForm, removeForm, getForm, mappers } =
     useFormGroupContext();
   const [tree, setTree] = useState<ReactElement>();
 
   useEffect(() => {
-    const formInstance = new FormCore({ schema: schema, initialValues });
+    const formInstance = new FormCore({ schema: schema, initialValues, onSubmit });
     addForm({ key: index, formInstance });
     return () => removeForm({ key: index });
   }, []);

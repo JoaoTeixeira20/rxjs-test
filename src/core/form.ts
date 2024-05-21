@@ -16,16 +16,21 @@ class FormCore {
   initialValues?: Record<string, unknown>;
   templateSubject$: Subject<{ key: string }>;
   subscribedTemplates: TSubscribedTemplates[];
+  onSubmit?: () => void;
+
   constructor({
     schema,
     initialValues,
+    onSubmit,
   }: {
     schema?: ISchema[];
     initialValues?: Record<string, unknown>;
+    onSubmit?: () => void;
   }) {
     this.schema = schema;
     this.fields = new Map();
     this.initialValues = initialValues;
+    this.onSubmit = onSubmit;
     this.schema && FormCore.checkIndexes(this.schema);
     this.templateSubject$ = new Subject();
     this.subscribedTemplates = [];
@@ -401,6 +406,14 @@ class FormCore {
       }
     });
     console.log(values);
+  }
+
+  submit() {
+    this.fields.forEach((field) => {
+      field.emitEvents({ event: 'ON_FORM_SUBMIT' });
+    });
+
+    this.onSubmit && this.onSubmit();
   }
 }
 

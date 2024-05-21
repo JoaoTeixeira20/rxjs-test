@@ -38,6 +38,9 @@ const FormTestComponent = (): ReactElement => {
       <button onClick={() => console.log(getForm({ key: 'foo' })?.isValid)}>
         print foo validate
       </button>
+      <button onClick={() => getForm({ key: 'foo' })?.submit()}>
+        check submit
+      </button>
 
       <Form
         index='foo'
@@ -46,6 +49,9 @@ const FormTestComponent = (): ReactElement => {
           name: 'foo',
           bal: 'bal',
           baz: 'baz',
+        }}
+        onSubmit={() => {
+          console.log('onsubmit');
         }}
       >
       </Form>

@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { useFormGroupContext } from '../context/FormGroupContext';
 import FormCore from '@/core/form';
+import { TFormValues } from '@/types/formTypes';
 
 const Form = ({
   schema,
@@ -16,10 +17,12 @@ const Form = ({
   initialValues,
   action,
   method,
+  onSubmit,
   children,
 }: PropsWithChildren<
   {
     schema?: IFormSchema;
+    onSubmit?: (data: TFormValues) => void;
   } & Omit<IFormSchema, 'components'>
 >) => {
   const { addForm, removeForm, getForm, mappers } = useFormGroupContext();
@@ -41,6 +44,7 @@ const Form = ({
       action: action || schema?.action,
       method: method || schema?.method,
       index: schemaIndex,
+      onSubmit,
     });
     addForm({ key: schemaIndex, formInstance });
     return () => removeForm({ key: index });

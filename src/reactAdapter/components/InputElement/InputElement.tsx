@@ -2,12 +2,16 @@ import { PropsWithChildren, ReactElement } from 'react';
 
 const InputElement = ({
   label,
-  onChange,
+  onFocus2 = () => console.log('onFocus2'),
+  onBlur2 = () => console.log('onBlur2'),
+  onChange2 = () => console.log('onChange2'),
   value,
   children,
 }: PropsWithChildren<{
   label: string;
-  onChange: () => void;
+  onFocus2: () => void;
+  onBlur2: () => void;
+  onChange2: () => void;
   value: string;
 }>): ReactElement => {
   return (
@@ -15,9 +19,11 @@ const InputElement = ({
       <label>{label}</label>
       <input
         type='text'
-        value={value}
-        onChange={onChange}
+        onBlur={onBlur2}
+        onChange={onChange2}
+        onFocus={onFocus2}
         placeholder='Type something...'
+        value={value}
       />
       {children}
     </>

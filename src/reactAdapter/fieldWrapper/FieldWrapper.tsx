@@ -17,25 +17,39 @@ const FieldWrapper = ({
   valueChangeEvent,
   formKey,
   children,
+  onBlur,
+  onChange,
+  onFocus,
+  onClick,
+  onKeyUp,
+  onKeyDown,
+  value,
 }: PropsWithChildren<{
   index: string;
   Component: ElementType;
   valueChangeEvent?: (event: unknown) => unknown;
   formKey: string;
+  onBlur?: string;
+  onChange?: string;
+  onFocus?: string;
+  onClick?: string;
+  onKeyUp?: string;
+  onKeyDown?: string;
+  value?: unknown;
 }>): ReactElement => {
   const { formGroupInstance } = useFormGroupContext();
   const fieldInstance = formGroupInstance
     .getForm({ key: formKey })
     ?.getField({ key: index });
   if (!fieldInstance) return <div>{`field ${index} not found :(`}</div>;
-  const [value, setValue] = useState(fieldInstance.value);
+  const [valueState, setValueState] = useState(fieldInstance.value);
   const [state, setState] = useState<Partial<IState>>({ visibility: true });
 
   useEffect(() => {
     fieldInstance.mountField();
 
     fieldInstance.subscribeValue((value) => {
-      setValue(value);
+      setValueState(value);
     });
 
     fieldInstance.subscribeState(
@@ -80,14 +94,26 @@ const FieldWrapper = ({
   //   );
   // }, [value]);
 
+  const mapProps = () => {
+    const props: Record<string, unknown> = {};
+    if (onBlur) props[onBlur] = () => handleEvent('ON_FIELD_BLUR');
+    if (onChange) props[onChange] = handleChange;
+    if (onFocus) props[onFocus] = () => handleEvent('ON_FIELD_FOCUS');
+    if (onClick) props[onClick] = () => handleEvent('ON_FIELD_CLICK');
+    if (onKeyUp) props[onKeyUp] = () => handleEvent('ON_FIELD_KEYUP');
+    if (onKeyDown) props[onKeyDown] = () => handleEvent('ON_FIELD_KEYDOWN');
+    props[(value as string) || 'value'] = valueState;
+    return props;
+  };
+
   return state?.visibility ? (
     <>
       <b style={{ padding: '0px', margin: '0px' }}>{index}</b>
       <Component
         {...state?.props}
-        onChange={handleChange}
-        onBlur={() => handleEvent('ON_FIELD_BLUR')}
-        value={value}
+        //onChange={handleChange}
+        {...mapProps()}
+        //value={valueState}
       >
         {children && children}
       </Component>

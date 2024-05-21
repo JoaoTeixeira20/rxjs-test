@@ -9,6 +9,7 @@ import { TValidationMethods } from '@/types/schemaTypes';
 import { TSubscribedTemplates } from '@/types/templateTypes';
 import { isEqual } from 'lodash';
 import { TEvents } from '@/types/eventTypes';
+import { TFormValues } from '@/types/formTypes';
 
 class FormCore {
   schema?: IFormSchema;
@@ -16,6 +17,7 @@ class FormCore {
   initialValues?: Record<string, unknown>;
   templateSubject$: Subject<{ key: string }>;
   subscribedTemplates: TSubscribedTemplates[];
+  onSubmit?: (data: TFormValues) => void;
   action?: string;
   method?: string;
   constructor({
@@ -23,11 +25,14 @@ class FormCore {
     initialValues,
     action,
     method,
+    onSubmit,
   }: {
     schema?: IFormSchema;
+    onSubmit?: (data: TFormValues) => void;
   } & Omit<IFormSchema, 'components'>) {
     this.schema = schema;
     this.fields = new Map();
+    this.onSubmit = onSubmit;
     this.initialValues = initialValues || schema?.initialValues;
     this.action = action || schema?.action;
     this.method = method || schema?.method;
@@ -408,6 +413,35 @@ class FormCore {
       }
     });
     console.log(values);
+  }
+
+  getFormValues(): TFormValues {
+    const values: Record<string, unknown> = {};
+    const erroredFields: string[] = [];
+
+    this.fields.forEach((val, key) => {
+      values[key] = val.value;
+      if (!val.valid) {
+        console.log(key);
+        erroredFields.push(key);
+      }
+    });
+
+    return {
+      values,
+      erroredFields,
+      isValid: this.isValid,
+    };
+  }
+
+  submit() {
+    this.fields.forEach((field) => {
+      field.emitEvents({ event: 'ON_FORM_SUBMIT' });
+    });
+
+    if (!this.isValid) return;
+
+    this.onSubmit && this.onSubmit(this.getFormValues());
   }
 }
 

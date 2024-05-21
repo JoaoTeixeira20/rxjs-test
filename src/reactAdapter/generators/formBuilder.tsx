@@ -65,26 +65,26 @@ const BuildTree = ({
 
       const lenght = Children.count(children);
 
-      return mapper && lenght > 0 ? (
-        <FieldWrapper
-          Component={mapper.component}
-          index={fieldName}
-          valueChangeEvent={mapper.valueChangeEvent}
-          key={fieldName}
-          formKey={formKey}
-        >
-          {children}
-        </FieldWrapper>
-      ) : (
-        mapper ? (
+      return mapper ? (
           <FieldWrapper
             Component={mapper.component}
             index={fieldName}
             valueChangeEvent={mapper.valueChangeEvent}
+            onChange={mapper.events?.getValue}
+            onBlur={mapper.events?.onBlur}
+            onFocus={mapper.events?.onFocus}
+            onClick={mapper.events?.onClick}
+            onKeyUp={mapper.events?.onKeyUp}
+            onKeyDown={mapper.events?.onKeyDown}
+            value={mapper.events?.setValue}
             key={fieldName}
             formKey={formKey}
-          ></FieldWrapper>
-        ) : <div>{`failed to render field on tree.. :(`}</div>)
+          >
+            {lenght > 0 ? children : null}
+          </FieldWrapper>
+        ) : (
+        <div>{`failed to render field on tree, check mappers.. :(`}</div>
+      );
     });
 };
 

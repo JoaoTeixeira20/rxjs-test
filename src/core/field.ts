@@ -100,6 +100,7 @@ class FormField {
     this.debouncedRequest = debounce(this.apiRequest, 1000).bind(this);
     this._props = schemaComponent.props;
     this._value = this.formatValue(initialValue || '');
+    this._stateValue = this.maskValue(this.formatValue(initialValue || ''));
     this._visibility = true;
     this._apiResponseData = { response: this.api?.config?.fallbackValue || '' };
     this._errorsString = '';
@@ -276,7 +277,7 @@ class FormField {
             // setting valid flag
             valid = !error && valid;
             // setting error messages
-            if (event === schemaEvent) {
+            if (event === schemaEvent || event === 'ON_FORM_SUBMIT') {
               if (error && this.errorMessages?.[validationKey]) {
                 errors[validationKey] = this.errorMessages[validationKey];
               } else {
